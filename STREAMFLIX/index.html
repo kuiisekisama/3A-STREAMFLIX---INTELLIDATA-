@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix - Watch Latest Movies Online!</title>
+    <link rel="icon" type="image/png" href="images/Logones.png" sizes="96x96">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/103245324d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ===== Polished Auth Modal ===== */
+        .popup-box.auth-box {
+            background: linear-gradient(180deg, #1c1c1c 0%, #141414 100%);
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 0 0 1px rgba(11, 108, 255, 0.08), 0 25px 60px rgba(0, 0, 0, 0.85);
+        }
+
+        .auth-tab { position: relative; }
+        .auth-tab.active { text-shadow: 0 0 10px rgba(11, 108, 255, 0.6); }
+        .auth-tab.active::after {
+            content: "";
+            position: absolute;
+            left: 0; right: 0; bottom: -2px;
+            height: 2px;
+            background: #0b6cff;
+            box-shadow: 0 0 8px #0b6cff, 0 0 16px rgba(11, 108, 255, 0.6);
+            border-radius: 2px;
+        }
+
+        .name-row { display: flex; gap: 12px; }
+        .name-row .form-group { flex: 1; margin-bottom: 0; }
+
+        .input-icon-wrap { position: relative; }
+        .input-icon-wrap i.field-icon {
+            position: absolute; top: 50%; left: 15px; transform: translateY(-50%);
+            color: #666; font-size: 14px; pointer-events: none; transition: color 0.2s;
+        }
+        .input-icon-wrap .auth-input { padding-left: 42px; }
+        .input-icon-wrap:focus-within i.field-icon { color: #0b6cff; }
+
+        .auth-input {
+            background: #202020;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .auth-input:hover { background: #242424; }
+        .auth-input:focus {
+            background: #202020;
+            border-color: #0b6cff;
+            box-shadow: 0 0 0 3px rgba(11, 108, 255, 0.18), 0 0 14px rgba(11, 108, 255, 0.25);
+        }
+
+        .auth-submit-btn,
+        .google-btn {
+            position: relative;
+            transition: background 0.2s, box-shadow 0.25s, transform 0.15s;
+        }
+        .auth-submit-btn:hover {
+            box-shadow: 0 0 18px rgba(11, 108, 255, 0.55), 0 0 36px rgba(11, 108, 255, 0.25);
+            transform: translateY(-1px);
+        }
+        .auth-submit-btn:active { transform: translateY(0); }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 18px 0 6px;
+            color: #888;
+            font-size: 13px;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #444;
+        }
+        
+        .google-btn {
+            width: 100%;
+            height: 48px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #fff;
+            color: #222;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        .google-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.35), 0 0 30px rgba(11, 108, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .google-btn:active { transform: translateY(0); }
+
+        .close-modal-btn {
+            transition: background 0.2s, color 0.2s, box-shadow 0.25s;
+        }
+        .close-modal-btn:hover {
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.12);
+        }
+
+        /* ===== Site-wide glow on key CTAs ===== */
+        .sign-btn,
+        .get-started,
+        .learn-more-btn {
+            transition: box-shadow 0.25s, transform 0.15s, background 0.2s;
+        }
+        .sign-btn:hover {
+            box-shadow: 0 0 14px rgba(11, 108, 255, 0.5);
+            transform: translateY(-1px);
+        }
+        .get-started:hover,
+        .learn-more-btn:hover {
+            box-shadow: 0 0 18px rgba(11, 108, 255, 0.55), 0 0 34px rgba(11, 108, 255, 0.25);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+            <nav class="main-nav">
+                <img src="images/Logo.png" alt="StreamFlix Logo" class="nav-logo">
+                <ul class="main-nav-menu">
+                    <li>
+                        <form>
+                            <div class="language-selector-wrapper">
+                                <select class="language-selector">
+                                    <option>English</option>
+                                    <option>Español</option>
+                                </select>
+                            </div>
+                        </form>
+                    </li>
+                    <li>
+                        <a href="#" class="sign-btn" onclick="openAuthModal('signin')">Sign In</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="header-showcase-text-container">
+                <h1>Unlimited Movies, For You To Have Fun</h1>
+                <p class="showcase-p">Starts at ₱250. Cancel anytime.</p>
+                <p class="showcase-p mt-1">Are you ready? Enter your email to create or restart your membership.</p>
+
+                <form class="email-cta-form">
+                    <input type="email" class="email-input" placeholder="Email Address" required>
+                    <button class="get-started">Get Started</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <div class="blue-divider"></div>
+
+    <main>
+        <section class="popcorn-ad">
+            <div class="container">
+                <div class="popcorn-banner-container">
+                    <div class="popcorn-img-container">
+                        <img src="images/popcorn.png" class="popcorn-img" alt="Popcorn">
+                    </div>
+                    <div class="banner-content-container">
+                        <div class="banner-text-container">
+                            <h2 class="banner-header">StreamFlix! Watch and Enjoy with Friends and Family.</h2>
+                            <p class="banner-p">Get our most affordable ad-supported plan.</p>
+                        </div>
+                        <div>
+                            <button class="learn-more-btn">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="more-reasons">
+            <div class="container">
+                <h2 class="section-header">More Reasons to Join</h2>
+                <div class="reasons-card-container">
+                    <div class="reasons-card">
+                        <h3 class="reason">Watch Everywhere</h3>
+                        <p class="reason-p">Stream unlimited movies on your TV, tablet, laptop, and phone.</p>
+                    </div>
+                    <div class="reasons-card">
+                        <h3 class="reason">Enjoy on Your TV</h3>
+                        <p class="reason-p">Watch on Smart TVs, Chromecast, Apple TV, PlayStation, Xbox, and more.</p>
+                    </div>
+                    <div class="reasons-card">
+                        <h3 class="reason">Download to Watch Offline</h3>
+                        <p class="reason-p">Save your favorite movies and TV shows so you can watch anywhere.</p>
+                    </div>
+                    <div class="reasons-card">
+                        <h3 class="reason">Create Profiles for Kids</h3>
+                        <p class="reason-p">Give kids their own safe profile with family-friendly entertainment.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="faqs">
+            <div class="container">
+                <h2 class="section-header">Frequently Asked Questions</h2>
+                <div class="faq-item-wrapper">
+                    <div class="faq">
+                        <h3 class="faq-question">How much does StreamFlix cost?</h3>
+                        <div class="faq-icon-container">
+                            <i class="fa-solid fa-plus"></i>
+                            <i class="fa-solid fa-x"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer-container">
+                        <div class="faq-text-container">
+                            <p class="faq-answer">StreamFlix offers flexible subscription plans starting at an affordable monthly price.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="emailPopup" class="login-popup">
+        <div class="popup-box">
+            <i class="fa-solid fa-envelope-circle-check"></i>
+            <h2>Invalid Email</h2>
+            <p id="emailPopupMessage">Please enter a valid email address.</p>
+            <button id="emailPopupBtn">OK</button>
+        </div>
+    </div>
+
+    <div id="welcomePopup" class="login-popup">
+        <div class="popup-box">
+            <i class="fa-solid fa-circle-check"></i>
+            <h2>Welcome to StreamFlix!</h2>
+            <p>You have successfully signed in. Redirecting to movies...</p>
+            <button id="continueBtn">Continue</button>
+        </div>
+    </div>
+
+    <div id="reactivatePopup" class="login-popup">
+        <div class="popup-box">
+            <i class="fa-solid fa-triangle-exclamation" style="color: #ff8080;"></i>
+            <h2>Account Deactivated</h2>
+            <p>This account was deactivated. Confirm it's you to reactivate it, or sign out.</p>
+            <div id="reactivatePasswordGroup" class="form-group input-icon-wrap" style="display: none; text-align: left; margin-top: 10px;">
+                <i class="fa-solid fa-lock field-icon"></i>
+                <input type="password" id="reactivatePassword" placeholder="Enter your password to confirm" class="auth-input">
+            </div>
+            <p id="reactivateError" class="auth-error"></p>
+            <button onclick="reactivateAccount()">Reactivate My Account</button>
+            <button onclick="handleLogout()" class="popup-btn-secondary">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Sign In / Sign Up) -->
+    <div id="authModal" class="login-popup">
+        <div class="popup-box auth-box">
+            <div class="auth-tabs">
+                <button id="tabSignin" class="auth-tab active" onclick="switchAuthTab('signin')">Log In</button>
+                <button id="tabSignup" class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="signinForm" class="auth-form" onsubmit="handleSignIn(event)">
+                <h2>Welcome Back</h2>
+                <div class="form-group input-icon-wrap">
+                    <i class="fa-solid fa-envelope field-icon"></i>
+                    <input type="email" id="signinEmail" placeholder="Email Address" required class="auth-input">
+                </div>
+                <div class="form-group input-icon-wrap">
+                    <i class="fa-solid fa-lock field-icon"></i>
+                    <input type="password" id="signinPassword" placeholder="Password" required class="auth-input">
+                </div>
+                <button type="submit" class="auth-submit-btn">Sign In</button>
+                <div class="auth-divider"><span>or</span></div>
+                <button type="button" class="google-btn" onclick="handleGoogleSignIn()">
+                    <i class="fa-brands fa-google"></i> Continue with Google
+                </button>
+                <p id="signinError" class="auth-error"></p>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signupForm" class="auth-form" style="display: none;" onsubmit="handleSignUp(event)">
+                <h2>Create Account</h2>
+                <div class="name-row">
+                    <div class="form-group input-icon-wrap">
+                        <i class="fa-solid fa-user field-icon"></i>
+                        <input type="text" id="signupFirstName" placeholder="First Name" required class="auth-input">
+                    </div>
+                    <div class="form-group input-icon-wrap">
+                        <i class="fa-solid fa-user field-icon"></i>
+                        <input type="text" id="signupLastName" placeholder="Last Name" required class="auth-input">
+                    </div>
+                </div>
+                <div class="form-group input-icon-wrap" style="margin-top: 15px;">
+                    <i class="fa-solid fa-envelope field-icon"></i>
+                    <input type="email" id="signupEmail" placeholder="Email Address" required class="auth-input">
+                </div>
+                <div class="form-group input-icon-wrap">
+                    <i class="fa-solid fa-lock field-icon"></i>
+                    <input type="password" id="signupPassword" placeholder="Create Password (min 6 chars)" required class="auth-input">
+                </div>
+                <button type="submit" class="auth-submit-btn">Register & Start</button>
+                <div class="auth-divider"><span>or</span></div>
+                <button type="button" class="google-btn" onclick="handleGoogleSignIn()">
+                    <i class="fa-brands fa-google"></i> Continue with Google
+                </button>
+                <p id="signupError" class="auth-error"></p>
+            </form>
+
+            <button id="closeAuthModal" class="close-modal-btn" onclick="closeAuthPopup()">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (sessionStorage.getItem("streamflix_needs_reactivation") && window.sfShowReactivatePopup) {
+                sfShowReactivatePopup();
+            }
+        });
+    </script>
+</body>
+
+</html>

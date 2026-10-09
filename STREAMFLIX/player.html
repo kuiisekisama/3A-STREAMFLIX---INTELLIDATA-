@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix - User Profile</title>
+    <link rel="icon" type="image/png" href="images/Logones.png" sizes="96x96">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/103245324d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #141414;
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .dashboard-header {
+            background: #141414;
+            border-bottom: 1px solid #222;
+            padding: 1rem 0;
+        }
+        
+        .nav-logo {
+            height: 40px;
+            object-fit: contain;
+        }
+        
+        .profile-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .profile-sidebar {
+            background: #181818;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+            box-sizing: border-box;
+        }
+        
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            background: #0b6cff;
+            color: white;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            overflow: hidden;
+            object-fit: cover;
+        }
+        
+        .profile-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .profile-card {
+            background: #181818;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        
+        .profile-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        .profile-btn {
+            background-color: #0b6cff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.2s, box-shadow 0.25s, transform 0.15s;
+        }
+        
+        .profile-btn:hover {
+            background-color: #3586ff;
+            box-shadow: 0 0 16px rgba(11, 108, 255, 0.5), 0 0 30px rgba(11, 108, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .profile-btn:active {
+            transform: translateY(0);
+        }
+        
+        .profile-btn-secondary {
+            background-color: #262626;
+            border: 1px solid #333;
+        }
+        
+        .profile-btn-secondary:hover {
+            background-color: #2e2e2e;
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.1);
+        }
+        
+        .profile-btn-danger {
+            background-color: transparent;
+            border: 1px solid #e50914;
+            color: #e50914;
+        }
+        
+        .profile-btn-danger:hover {
+            background-color: #e50914;
+            color: #fff;
+            box-shadow: 0 0 16px rgba(229, 9, 20, 0.5);
+        }
+        
+        .tabs-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .tab-btn.active {
+            color: #fff;
+            border-bottom: 2px solid #0b6cff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .media-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #222;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .media-list-item:hover {
+            background: #2a2a2a;
+        }
+        
+        .media-list-item span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            transition: color .2s, background .2s;
+        }
+
+        .remove-btn:hover {
+            color: #ff8080;
+            background: rgba(255, 128, 128, 0.1);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .modal-box {
+            background: linear-gradient(180deg, #1c1c1c 0%, #141414 100%);
+            padding: 30px;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 0 0 1px rgba(11, 108, 255, 0.06), 0 25px 60px rgba(0, 0, 0, 0.85);
+            animation: sfModalIn .25s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        @keyframes sfModalIn {
+            from { opacity: 0; transform: translateY(14px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-box h3 {
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        
+        .modal-box input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-top: 15px;
+            background: #202020;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+
+        .modal-box input:hover {
+            background: #242424;
+        }
+
+        .modal-box input:focus {
+            outline: none;
+            background: #202020;
+            border-color: #0b6cff;
+            box-shadow: 0 0 0 3px rgba(11, 108, 255, 0.18), 0 0 14px rgba(11, 108, 255, 0.25);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+            }
+            .profile-sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <header class="dashboard-header">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 20px;">
+            <nav class="main-nav" style="display: flex; align-items: center; width: 100%; justify-content: space-between;">
+                <img src="images/Logo.png" alt="StreamFlix Logo" class="nav-logo">
+                <button id="hamburgerBtn" class="hamburger-btn" aria-label="Open menu">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Slide-in Hamburger Menu -->
+        <div id="hamburgerOverlay" class="hamburger-overlay"></div>
+        <div id="hamburgerMenu" class="hamburger-menu">
+            <button id="hamburgerClose" class="hamburger-close" aria-label="Close menu">&times;</button>
+            <div class="hamburger-user">👤 <span id="userEmailDisplay">User</span></div>
+            <a href="movies.html"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#" id="hamburgerSubscriptionsBtn"><i class="fa-solid fa-crown"></i> Subscriptions</a>
+            <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+            <button type="button" id="hamburgerDeactivateBtn" class="hamburger-item" onclick="openDeactivateModal()"><i class="fa-solid fa-user-slash"></i> Deactivate Account</button>
+            <button type="button" id="hamburgerDeleteBtn" class="hamburger-item" onclick="openDeleteModal()"><i class="fa-solid fa-trash"></i> Delete Account</button>
+            <button type="button" id="hamburgerLogoutBtn" class="hamburger-item hamburger-logout"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+        </div>
+
+
+        <div class="profile-container">
+            <!-- Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-avatar-large" id="avatarPreviewContainer">
+                    <i class="fa-solid fa-user" id="defaultAvatarIcon"></i>
+                </div>
+                <h2 id="profileUsernameDisplay" style="font-size: 18px; margin-bottom: 5px;">User Account</h2>
+                <p id="profileRealNameDisplay" style="color: #b3b3b3; font-size: 13px; margin: 0 0 5px 0; display: none;"></p>
+                <p id="profileEmailDisplay" style="color: #888; font-size: 13px; word-break: break-all;">user@email.com</p>
+
+                <button class="profile-btn" onclick="openUsernameModal()">Edit Name</button>
+                <!-- Hidden native file input triggered by button to open local device files -->
+                <input type="file" id="localAvatarFile" accept="image/*" style="display: none;" onchange="handleFileSelected(event)">
+                <button class="profile-btn profile-btn-secondary" onclick="triggerFileUpload()">Change Avatar</button>
+            </div>
+
+            <!-- Main Content Area with Tabs -->
+            <div class="profile-main-content">
+                <div class="profile-card">
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+                        <button class="tab-btn" onclick="switchTab('watchlist')">Watchlist</button>
+                        <button class="tab-btn" onclick="switchTab('history')">History</button>
+                        <button class="tab-btn" onclick="switchTab('friends')">Friends & Family</button>
+                    </div>
+
+                    <!-- Overview Tab -->
+                    <div id="tabOverview" class="tab-content active">
+                        <h3 style="border:none; padding:0; margin-bottom: 10px;">Bio & Description</h3>
+                        <p style="color: #b3b3b3; font-size: 14px; margin-bottom: 25px;">Welcome to StreamFlix! Enjoy unlimited movies and series on your personalized streaming dashboard.</p>
+
+                        <h3 style="border:none; padding:0; margin-bottom: 10px;">Account Status</h3>
+                        <div style="display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; background: #222; padding: 15px; border-radius: 6px;">
+                            <div>
+                                <p style="color: #888; font-size: 12px; margin: 0;">PROFILE NAME</p>
+                                <p id="profileNameDisplay" style="color: #fff; font-weight: 600; margin: 5px 0 0 0;">Loading...</p>
+                            </div>
+                            <div>
+                                <p style="color: #888; font-size: 12px; margin: 0;">PLAN TIER</p>
+                                <p id="planTierDisplay" style="color: #46d369; font-weight: 600; margin: 5px 0 0 0;">Loading...</p>
+                            </div>
+                            <div>
+                                <p style="color: #888; font-size: 12px; margin: 0;">MEMBER SINCE</p>
+                                <p style="color: #fff; font-weight: 600; margin: 5px 0 0 0;">2026</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Watchlist Tab -->
+                    <div id="tabWatchlist" class="tab-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                            <h3 style="border:none; padding:0; margin:0;">My Watchlist</h3>
+                            <button id="clearWatchlistBtn" style="background:none; border:none; color:#777; font-size:13px; cursor:pointer; text-decoration:underline;">Clear All</button>
+                        </div>
+                        <div id="watchlistContainer">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- History Tab -->
+                    <div id="tabHistory" class="tab-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                            <h3 style="border:none; padding:0; margin:0;">Watch History</h3>
+                            <button id="clearHistoryBtn" style="background:none; border:none; color:#777; font-size:13px; cursor:pointer; text-decoration:underline;">Clear All</button>
+                        </div>
+                        <div id="historyContainer">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Friends & Family Tab -->
+                    <div id="tabFriends" class="tab-content">
+                        <h3 style="border:none; padding:0; margin-bottom: 10px;">Add a Friend</h3>
+                        <div style="display:flex; gap:10px; margin-bottom: 8px;">
+                            <input type="email" id="friendEmailInput" placeholder="Friend's StreamFlix email" class="auth-input" style="flex:1;">
+                            <button class="profile-btn" onclick="sendFriendRequest()">Send Request</button>
+                        </div>
+                        <p id="friendRequestMsg" style="color:#777; font-size:12px; min-height:16px; margin: 0 0 25px 0;"></p>
+
+                        <h3 style="border:none; padding:0; margin-bottom: 10px;">Friend Requests</h3>
+                        <div id="incomingRequestsContainer" style="margin-bottom: 25px;">
+                            <p style="color:#777; font-size:13px;">Loading...</p>
+                        </div>
+
+                        <h3 style="border:none; padding:0; margin-bottom: 10px;">My Friends</h3>
+                        <div id="friendsListContainer" style="margin-bottom: 25px;">
+                            <p style="color:#777; font-size:13px;">Loading...</p>
+                        </div>
+
+                        <h3 style="border:none; padding:0; margin-bottom: 10px;">My Family Plan</h3>
+                        <p id="familyPlanStatus" style="color:#888; font-size:13px; margin-bottom: 10px;"></p>
+                        <div id="familyMembersContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription & Payment Modal -->
+        <div id="subscriptionModal" class="movie-modal" style="display: none;">
+            <div class="movie-modal-content subscription-modal-content">
+                <button class="modal-close" onclick="closeSubscriptionModal()">&times;</button>
+                <div class="modal-details" style="width: 100%; padding: 25px;">
+                    <h2 class="modal-title" style="text-align: center; margin-bottom: 5px;">Choose Your Plan</h2>
+                    <p class="modal-backstory" style="text-align: center; margin-bottom: 20px;">Unlock unlimited movies and shows on StreamFlix. New users get special launch discounts!</p>
+
+                    <!-- Step 1: Subscription Tiers -->
+                    <div id="tierSelectionStep">
+                        <div class="subscription-grid">
+                            <!-- Basic Plan -->
+                            <div class="sub-card" onclick="selectPlan('Basic', 99, 0.5)">
+                                <h3>Basic</h3>
+                                <p class="sub-price">₱99<span>/mo</span></p>
+                                <p class="sub-discount-tag">50% OFF for New Users</p>
+                                <button class="modal-play-btn select-plan-btn">Select Basic</button>
+                            </div>
+                            <!-- Standard Plan -->
+                            <div class="sub-card" onclick="selectPlan('Standard', 169, 0.3)">
+                                <h3>Standard</h3>
+                                <p class="sub-price">₱169<span>/mo</span></p>
+                                <p class="sub-discount-tag">30% OFF for New Users</p>
+                                <button class="modal-play-btn select-plan-btn">Select Standard</button>
+                            </div>
+                            <!-- Premium Plan -->
+                            <div class="sub-card" onclick="selectPlan('Premium', 259, 0.2)">
+                                <h3>Premium</h3>
+                                <p class="sub-price">₱259<span>/mo</span></p>
+                                <p class="sub-discount-tag">20% OFF for New Users</p>
+                                <button class="modal-play-btn select-plan-btn">Select Premium</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Payment Methods (Hidden by Default) -->
+                    <div id="paymentMethodStep" style="display: none;">
+                        <button onclick="backToPlans()" style="background: none; border: none; color: #46d369; cursor: pointer; font-weight: 600; margin-bottom: 15px;">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Plans
+                    </button>
+                        <div class="selected-plan-summary" style="background: #222; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 id="summaryPlanName" style="color: #fff; font-size: 18px; margin-bottom: 5px;">Plan: Basic</h3>
+                            <p style="color: #b3b3b3; font-size: 14px; margin: 0;">Regular Price: <span id="summaryOriginalPrice">₱99</span></p>
+                            <p style="color: #46d369; font-size: 14px; margin: 0;">New User Promo: <span id="summaryDiscountText">50% off applied</span></p>
+                            <h2 style="color: #fff; font-size: 22px; margin-top: 10px;">Total to Pay: <span id="summaryFinalPrice" style="color: #0b6cff;">₱49.50</span></h2>
+                        </div>
+
+                        <h3 style="font-size: 18px; margin-bottom: 12px;">Select Payment Method</h3>
+
+                        <div class="payment-options-container">
+                            <!-- Debit Card Option -->
+                            <div class="payment-category">
+                                <label class="payment-option-label">
+                                <input type="radio" name="paymentMethod" value="Debit Card" onclick="togglePaymentDetails('debit')"> 
+                                <span><i class="fa-solid fa-credit-card"></i> Debit Card</span>
+                            </label>
+                                <div id="debitDetails" class="sub-payment-fields" style="display: none;">
+                                    <input type="text" placeholder="Card Number (XXXX XXXX XXXX XXXX)" class="auth-input" style="margin-top: 8px; width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px;">
+                                </div>
+                            </div>
+
+                            <!-- E-Wallet Option -->
+                            <div class="payment-category" style="margin-top: 10px;">
+                                <label class="payment-option-label">
+                                <input type="radio" name="paymentMethod" value="E-Wallet" onclick="togglePaymentDetails('ewallet')"> 
+                                <span><i class="fa-solid fa-wallet"></i> E-Wallet</span>
+                            </label>
+                                <div id="ewalletDetails" class="sub-payment-fields" style="display: none; margin-top: 8px; padding-left: 20px;">
+                                    <label style="display: block; margin-bottom: 6px; cursor: pointer;"><input type="radio" name="ewalletProvider" value="GCash"> GCash</label>
+                                    <label style="display: block; margin-bottom: 6px; cursor: pointer;"><input type="radio" name="ewalletProvider" value="Maya"> Maya</label>
+                                    <label style="display: block; cursor: pointer;"><input type="radio" name="ewalletProvider" value="PayPal"> PayPal</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="modal-play-btn" style="width: 100%; margin-top: 25px; justify-content: center;" onclick="processPayment()">
+                        Confirm & Pay Now
+                    </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Username Change Modal -->
+        <div id="usernameModal" class="modal">
+            <div class="modal-box">
+                <h3>Edit Profile</h3>
+                <input type="text" id="newProfileNameInput" placeholder="Profile name (shown on your account)" maxlength="30">
+                <p id="profileNameCharCount" style="color:#777; font-size:11px; margin: -8px 0 10px 2px;">0 / 30</p>
+                <input type="text" id="newFirstNameInput" placeholder="First name" maxlength="30">
+                <input type="text" id="newLastNameInput" placeholder="Last name" maxlength="30">
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="profile-btn" onclick="saveNewUsername()">Save</button>
+                    <button class="profile-btn profile-btn-secondary" onclick="closeUsernameModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deactivate Account Modal -->
+        <div id="deactivateModal" class="modal">
+            <div class="modal-box">
+                <h3>Deactivate Account</h3>
+                <p style="color:#b3b3b3; font-size:14px;">Your account will be disabled and you will be signed out. Your data is kept, and you can come back later.</p>
+                <p id="deactivateError" style="color:#e50914; font-size:13px; min-height:16px; margin:10px 0 0;"></p>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="confirmDeactivateBtn" class="profile-btn" onclick="confirmDeactivateAccount()">Deactivate</button>
+                    <button class="profile-btn profile-btn-secondary" onclick="closeDeactivateModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Account Modal -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-box">
+                <h3 style="color:#e50914;">Delete Account</h3>
+                <p style="color:#b3b3b3; font-size:14px;">This permanently deletes your account, watchlist, history and subscription. This cannot be undone.</p>
+                <p style="color:#b3b3b3; font-size:14px; margin-bottom:0;">Type <strong>DELETE</strong> to confirm:</p>
+                <input type="text" id="deleteConfirmInput" placeholder="DELETE" autocomplete="off">
+                <p id="deleteError" style="color:#e50914; font-size:13px; min-height:16px; margin:10px 0 0;"></p>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="confirmDeleteBtn" class="profile-btn profile-btn-danger" onclick="confirmDeleteAccount()">Delete Forever</button>
+                    <button class="profile-btn profile-btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'overview') {
+                document.getElementById('tabOverview').classList.add('active');
+                event.currentTarget.classList.add('active');
+            } else if (tabName === 'watchlist') {
+                document.getElementById('tabWatchlist').classList.add('active');
+                event.currentTarget.classList.add('active');
+                loadWatchlist();
+            } else if (tabName === 'history') {
+                document.getElementById('tabHistory').classList.add('active');
+                event.currentTarget.classList.add('active');
+                loadHistory();
+            } else if (tabName === 'friends') {
+                document.getElementById('tabFriends').classList.add('active');
+                event.currentTarget.classList.add('active');
+                loadFriendsTab();
+            }
+        }
+
+        // Play a movie from Watchlist/History, handing off its details to
+        // player.html the same way movies.html does. Wrapped so that even if
+        // localStorage write fails for some reason, we still navigate.
+        function playStoredMovie(item) {
+            console.log('[StreamFlix] playStoredMovie called with:', item);
+            if (item && item.type === 'show') {
+                window.location.href = `movies.html?show=${encodeURIComponent(item.title)}`;
+                return;
+            }
+            if (!item || !item.video) {
+                alert("This entry was saved before video links were tracked, so it can't be replayed. Remove it and add it again from the Home page to fix this.");
+                return;
+            }
+            try {
+                localStorage.setItem('streamflix_now_playing', JSON.stringify({
+                    title: item.title,
+                    poster: item.poster || '',
+                    year: item.year || '',
+                    video: item.video
+                }));
+            } catch (e) {
+                // Storage failed — still let the movie play.
+            }
+            console.log('[StreamFlix] navigating to player.html for:', item.video);
+            window.location.href = `player.html?movie=${encodeURIComponent(item.video)}`;
+        }
+
+        function playFromWatchlist(index) {
+            const watchlist = getWatchlist();
+            playStoredMovie(watchlist[index]);
+        }
+
+        let sfLastLoadedHistory = [];
+
+        function playFromHistory(index) {
+            playStoredMovie(sfLastLoadedHistory[index]);
+        }
+
+        // Load Watchlist from LocalStorage
+        function loadWatchlist() {
+            const container = document.getElementById('watchlistContainer');
+            let watchlist = getWatchlist();
+
+            if (watchlist.length === 0) {
+                container.innerHTML = '<p style="color: #777; font-size: 14px;">Your watchlist is currently empty. Add movies from the Home page!</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            watchlist.forEach((item, index) => {
+                const thumb = item.poster ?
+                    `<img src="${item.poster}" alt="${item.title}" style="width:36px;height:54px;object-fit:cover;border-radius:4px;margin-right:12px;flex-shrink:0;">` :
+                    `<i class="fa-solid fa-film" style="margin-right: 10px; color: #0b6cff;"></i>`;
+                container.innerHTML += `
+                    <div class="media-list-item" data-index="${index}">
+                        <span style="display:flex;align-items:center;">${thumb}${item.title}</span>
+                        <button class="remove-btn" data-index="${index}"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        function removeFromWatchlist(index) {
+            let watchlist = getWatchlist();
+            watchlist.splice(index, 1);
+            saveWatchlist(watchlist);
+            loadWatchlist();
+        }
+
+        // Watch History - read live from Supabase (public.viewing_history,
+        // RLS-scoped to the signed-in user), same as movies.html's Continue
+        // Watching row, instead of the old localStorage-only version.
+        async function loadHistory() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '<p style="color: #777; font-size: 14px;">Loading...</p>';
+
+            const { data: rows, error } = await supabaseClient
+                .from('viewing_history')
+                .select('contentid, progress, lastwatched, content(title, thumbnail)')
+                .order('lastwatched', { ascending: false });
+
+            if (error) {
+                console.error('[StreamFlix] could not load history:', error.message);
+                container.innerHTML = '<p style="color: #777; font-size: 14px;">Could not load watch history right now.</p>';
+                return;
+            }
+
+            sfLastLoadedHistory = (rows || []).map(row => {
+                const c = row.content || {};
+                const title = (c.title || '').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1));
+                return {
+                    title,
+                    poster: 'images/' + (c.thumbnail || ''),
+                    video: c.title || '',
+                    progress: Math.round(row.progress || 0),
+                    lastwatched: row.lastwatched,
+                    contentid: row.contentid
+                };
+            });
+
+            if (sfLastLoadedHistory.length === 0) {
+                container.innerHTML = '<p style="color: #777; font-size: 14px;">No watch history yet. Movies you play will show up here.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            sfLastLoadedHistory.forEach((item, index) => {
+                const thumb = item.poster ?
+                    `<img src="${item.poster}" alt="${item.title}" style="width:36px;height:54px;object-fit:cover;border-radius:4px;margin-right:12px;flex-shrink:0;" onerror="this.style.display='none'">` :
+                    `<i class="fa-solid fa-clock-rotate-left" style="margin-right: 10px; color: #46d369;"></i>`;
+                const when = item.lastwatched ? new Date(item.lastwatched).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+                container.innerHTML += `
+                    <div class="media-list-item" data-index="${index}">
+                        <span style="display:flex;align-items:center;">${thumb}${item.title} <span style="color:#777; font-size:11px; margin-left:8px;">${item.progress}% watched</span></span>
+                        <span style="display:flex;align-items:center;gap:12px;">
+                            <span style="color: #777; font-size: 12px; white-space: nowrap;">${when}</span>
+                            <button class="remove-btn" data-index="${index}"><i class="fa-solid fa-trash"></i></button>
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        async function removeFromHistory(index) {
+            const item = sfLastLoadedHistory[index];
+            if (!item) return;
+            const userid = await sfGetUserId();
+            if (!userid) return;
+            await supabaseClient.from('viewing_history').delete()
+                .eq('userid', userid).eq('contentid', item.contentid);
+            loadHistory();
+        }
+
+        // Event delegation: bind once to the stable container elements so
+        // clicks work reliably even after the rows are re-rendered.
+        document.getElementById('watchlistContainer').addEventListener('click', (e) => {
+            console.log('[StreamFlix] watchlist container clicked', e.target);
+            const removeBtn = e.target.closest('.remove-btn');
+            if (removeBtn) {
+                e.stopPropagation();
+                removeFromWatchlist(Number(removeBtn.dataset.index));
+                return;
+            }
+            const row = e.target.closest('.media-list-item');
+            if (row) {
+                console.log('[StreamFlix] playing watchlist row, index:', row.dataset.index);
+                playFromWatchlist(Number(row.dataset.index));
+            } else {
+                console.log('[StreamFlix] click was not inside a .media-list-item row');
+            }
+        });
+
+        document.getElementById('historyContainer').addEventListener('click', (e) => {
+            console.log('[StreamFlix] history container clicked', e.target);
+            const removeBtn = e.target.closest('.remove-btn');
+            if (removeBtn) {
+                e.stopPropagation();
+                removeFromHistory(Number(removeBtn.dataset.index));
+                return;
+            }
+            const row = e.target.closest('.media-list-item');
+            if (row) {
+                console.log('[StreamFlix] playing history row, index:', row.dataset.index);
+                playFromHistory(Number(row.dataset.index));
+            } else {
+                console.log('[StreamFlix] click was not inside a .media-list-item row');
+            }
+        });
+
+        document.getElementById('clearWatchlistBtn').addEventListener('click', () => {
+            if (confirm('Remove everything from your watchlist?')) {
+                saveWatchlist([]);
+                loadWatchlist();
+            }
+        });
+
+        document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+            if (confirm('Clear your entire watch history?')) {
+                saveHistory([]);
+                loadHistory();
+            }
+        });
+
+        // Username Modal Controls
+        function sfUpdateProfileNameCharCount() {
+            const profile = document.getElementById('newProfileNameInput');
+            const counter = document.getElementById('profileNameCharCount');
+            if (!profile || !counter) return;
+            counter.textContent = `${profile.value.length} / 30`;
+            counter.style.color = profile.value.length >= 30 ? '#ff8080' : '#777';
+        }
+        document.getElementById('newProfileNameInput').addEventListener('input', sfUpdateProfileNameCharCount);
+
+        async function openUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'flex';
+            const profile = document.getElementById('newProfileNameInput');
+            const first = document.getElementById('newFirstNameInput');
+            const last = document.getElementById('newLastNameInput');
+            profile.value = '';
+            first.value = '';
+            last.value = '';
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                const { data } = await supabaseClient
+                    .from('users')
+                    .select('firstname, lastname, profilename')
+                    .eq('auth_id', user.id)
+                    .maybeSingle();
+                if (data) {
+                    profile.value = data.profilename || '';
+                    first.value = data.firstname || '';
+                    last.value = data.lastname || '';
+                }
+            } catch (e) {
+                console.error('[StreamFlix] could not load name for editing:', e);
+            }
+            sfUpdateProfileNameCharCount();
+        }
+
+        function closeUsernameModal() {
+            document.getElementById('usernameModal').style.display = 'none';
+        }
+
+        // Deactivate Account Controls
+        function openDeactivateModal() {
+            const closeBtn = document.getElementById('hamburgerClose');
+            if (closeBtn) closeBtn.click(); // close the slide-in menu
+            document.getElementById('deactivateError').textContent = '';
+            document.getElementById('deactivateModal').style.display = 'flex';
+        }
+
+        function closeDeactivateModal() {
+            document.getElementById('deactivateModal').style.display = 'none';
+        }
+
+        // Marks the account as inactive in public.users (is_active = false),
+        // then signs the user out.
+        async function confirmDeactivateAccount() {
+            const errorEl = document.getElementById('deactivateError');
+            const btn = document.getElementById('confirmDeactivateBtn');
+            btn.disabled = true;
+            errorEl.textContent = '';
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) { errorEl.textContent = 'You must be signed in.'; btn.disabled = false; return; }
+                const { data: rows, error } = await supabaseClient
+                    .from('users')
+                    .update({ is_active: false, deactivated_at: new Date().toISOString() })
+                    .eq('auth_id', user.id)
+                    .select();
+                if (error || !rows || rows.length === 0) {
+                    errorEl.textContent = 'Could not deactivate: ' + (error ? error.message : 'no matching account row');
+                    btn.disabled = false;
+                    return;
+                }
+                await supabaseClient.auth.signOut();
+                alert('Your account has been deactivated.');
+                window.location.href = 'index.html';
+            } catch (e) {
+                console.error('[StreamFlix] confirmDeactivateAccount failed:', e);
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                btn.disabled = false;
+            }
+        }
+
+        // Delete Account Modal Controls
+        function openDeleteModal() {
+            const closeBtn = document.getElementById('hamburgerClose');
+            if (closeBtn) closeBtn.click(); // close the slide-in menu
+            document.getElementById('deleteConfirmInput').value = '';
+            document.getElementById('deleteError').textContent = '';
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // Calls the delete_my_account() SQL function in Supabase (see the SQL
+        // I gave you), then signs out and sends the user back to index.html.
+        async function confirmDeleteAccount() {
+            const errorEl = document.getElementById('deleteError');
+            const btn = document.getElementById('confirmDeleteBtn');
+            if (document.getElementById('deleteConfirmInput').value.trim() !== 'DELETE') {
+                errorEl.textContent = 'Please type DELETE exactly to confirm.';
+                return;
+            }
+            btn.disabled = true;
+            errorEl.textContent = '';
+            try {
+                const { error } = await supabaseClient.rpc('delete_my_account');
+                if (error) {
+                    errorEl.textContent = 'Could not delete account: ' + error.message;
+                    btn.disabled = false;
+                    return;
+                }
+                await supabaseClient.auth.signOut();
+                Object.keys(localStorage)
+                    .filter(k => k.startsWith('streamflix_'))
+                    .forEach(k => localStorage.removeItem(k));
+                alert('Your account has been deleted.');
+                window.location.href = 'index.html';
+            } catch (e) {
+                console.error('[StreamFlix] confirmDeleteAccount failed:', e);
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                btn.disabled = false;
+            }
+        }
+
+        // Shows the names on the sidebar card and in the Account Status box.
+        function renderNames(firstName, lastName, profileName) {
+            const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+            const heading = (profileName || '').trim() || fullName || 'User Account';
+            document.getElementById('profileUsernameDisplay').textContent = heading;
+
+            const real = document.getElementById('profileRealNameDisplay');
+            if (fullName && fullName !== heading) {
+                real.textContent = fullName;
+                real.style.display = 'block';
+            } else {
+                real.style.display = 'none';
+            }
+
+            const box = document.getElementById('profileNameDisplay');
+            if (box) box.textContent = (profileName || '').trim() || fullName || 'Not set';
+            localStorage.setItem('streamflix_username', heading);
+        }
+
+        // Saves profile name + first + last name to public.users
+        // (profilename / firstname / lastname) so it persists for this account.
+        async function saveNewUsername() {
+            const profileName = document.getElementById('newProfileNameInput').value.trim();
+            const firstName = document.getElementById('newFirstNameInput').value.trim();
+            const lastName = document.getElementById('newLastNameInput').value.trim();
+            if (!firstName) {
+                alert('Please enter a first name.');
+                return;
+            }
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) { alert('You must be signed in to edit your profile.'); return; }
+                const { data: rows, error } = await supabaseClient
+                    .from('users')
+                    .update({ firstname: firstName, lastname: lastName, profilename: profileName || null })
+                    .eq('auth_id', user.id)
+                    .select();
+                if (error) { alert('Could not save your profile: ' + error.message); return; }
+                if (!rows || rows.length === 0) { alert('Could not save your profile (no matching account row).'); return; }
+                renderNames(firstName, lastName, profileName);
+                closeUsernameModal();
+            } catch (e) {
+                console.error('[StreamFlix] saveNewUsername failed:', e);
+                alert('Something went wrong saving your profile. Please try again.');
+            }
+        }
+
+        // Loads profile name / first / last name from Supabase for the signed-in user.
+        async function loadAccountNames() {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('firstname, lastname, profilename')
+                    .eq('auth_id', user.id)
+                    .maybeSingle();
+                if (error) { console.error('[StreamFlix] loadAccountNames error:', error.message); return; }
+                if (data) renderNames(data.firstname, data.lastname, data.profilename);
+            } catch (e) {
+                console.error('[StreamFlix] loadAccountNames failed:', e);
+            }
+        }
+
+        // Trigger native file explorer popup window to pick local image file
+        function triggerFileUpload() {
+            document.getElementById('localAvatarFile').click();
+        }
+
+        // Handle image selection from local machine files
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Image = e.target.result;
+                    localStorage.setItem('streamflix_avatar', base64Image);
+                    updateAvatarDisplay(base64Image);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateAvatarDisplay(url) {
+            const container = document.getElementById('avatarPreviewContainer');
+            container.innerHTML = `<img src="${url}" alt="Avatar">`;
+        }
+
+        // Fetch the user's current plan_tier from Supabase and show it in
+        // the Account Status box. Falls back to the default label if the
+        // lookup fails for any reason (not signed in, network hiccup, etc.)
+        async function loadPlanTier() {
+            const display = document.getElementById('planTierDisplay');
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) {
+                    if (display) display.textContent = 'Free / Launch Mode';
+                    return;
+                }
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('plan_tier')
+                    .eq('auth_id', user.id)
+                    .single();
+                if (error) {
+                    console.error('[StreamFlix] loadPlanTier query error:', error.message, error);
+                }
+                if (display) {
+                    display.textContent = (data && data.plan_tier) ? data.plan_tier : 'Free / Launch Mode';
+                }
+            } catch (e) {
+                console.error('[StreamFlix] loadPlanTier failed:', e);
+                if (display) display.textContent = 'Free / Launch Mode';
+            }
+        }
+
+        // Initialize user info on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Wait for auth.js to load this account's name from Supabase.
+            if (window.sfProfileReady) await window.sfProfileReady;
+            const savedName = localStorage.getItem('streamflix_username');
+            if (savedName) {
+                document.getElementById('profileUsernameDisplay').textContent = savedName;
+            }
+            const savedAvatar = localStorage.getItem('streamflix_avatar');
+            if (savedAvatar) {
+                updateAvatarDisplay(savedAvatar);
+            }
+            const userEmail = localStorage.getItem('streamflix_user_email') || "user@email.com";
+            document.getElementById('profileEmailDisplay').textContent = userEmail;
+
+            loadPlanTier();
+            loadAccountNames();
+        });
+
+        // ===============================
+        // FRIENDS & FAMILY SUBSCRIPTION
+        // ===============================
+        function sfEscapeHtml(str) {
+            return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        async function loadFriendsTab() {
+            await Promise.all([loadIncomingRequests(), loadFriendsList(), loadFamilyPlan()]);
+        }
+
+        async function sendFriendRequest() {
+            const input = document.getElementById('friendEmailInput');
+            const msg = document.getElementById('friendRequestMsg');
+            const email = input.value.trim();
+            if (!email) { msg.textContent = 'Enter an email first.'; return; }
+            msg.textContent = 'Sending...';
+            const { data, error } = await supabaseClient.rpc('send_friend_request', { p_email: email });
+            if (error) { msg.textContent = 'Error: ' + error.message; return; }
+            msg.textContent = data;
+            input.value = '';
+            loadFriendsTab();
+        }
+
+        async function loadIncomingRequests() {
+            const container = document.getElementById('incomingRequestsContainer');
+            const { data, error } = await supabaseClient.rpc('list_friendships');
+            if (error) {
+                container.innerHTML = '<p style="color:#777; font-size:13px;">Could not load requests.</p>';
+                return;
+            }
+            const incoming = (data || []).filter(f => f.status === 'pending' && !f.i_am_requester);
+            if (!incoming.length) {
+                container.innerHTML = '<p style="color:#777; font-size:13px;">No pending requests.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            incoming.forEach(f => {
+                const row = document.createElement('div');
+                row.className = 'media-list-item';
+                row.innerHTML = `
+                    <span>${sfEscapeHtml(f.other_name || f.other_email || 'Someone')}</span>
+                    <span style="display:flex; gap:8px;">
+                        <button class="profile-btn" style="padding:6px 14px; font-size:12px;" data-accept="${f.friendshipid}">Accept</button>
+                        <button class="profile-btn profile-btn-secondary" style="padding:6px 14px; font-size:12px;" data-decline="${f.friendshipid}">Decline</button>
+                    </span>
+                `;
+                container.appendChild(row);
+            });
+            container.querySelectorAll('[data-accept]').forEach(btn => btn.addEventListener('click', async () => {
+                await supabaseClient.rpc('respond_friend_request', { p_friendship_id: Number(btn.dataset.accept), p_accept: true });
+                loadFriendsTab();
+            }));
+            container.querySelectorAll('[data-decline]').forEach(btn => btn.addEventListener('click', async () => {
+                await supabaseClient.rpc('respond_friend_request', { p_friendship_id: Number(btn.dataset.decline), p_accept: false });
+                loadFriendsTab();
+            }));
+        }
+
+        async function loadFriendsList() {
+            const container = document.getElementById('friendsListContainer');
+            const { data, error } = await supabaseClient.rpc('list_friendships');
+            if (error) {
+                container.innerHTML = '<p style="color:#777; font-size:13px;">Could not load friends.</p>';
+                return;
+            }
+            const accepted = (data || []).filter(f => f.status === 'accepted');
+            if (!accepted.length) {
+                container.innerHTML = '<p style="color:#777; font-size:13px;">No friends yet — add one above.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            accepted.forEach(f => {
+                const row = document.createElement('div');
+                row.className = 'media-list-item';
+                row.innerHTML = `
+                    <span>${sfEscapeHtml(f.other_name || f.other_email || 'Friend')}</span>
+                    <button class="profile-btn" style="padding:6px 14px; font-size:12px;" data-add-plan="${f.other_userid}">Add to My Plan</button>
+                `;
+                container.appendChild(row);
+            });
+            container.querySelectorAll('[data-add-plan]').forEach(btn => btn.addEventListener('click', async () => {
+                const { data: msg, error } = await supabaseClient.rpc('add_family_member', { p_friend_userid: Number(btn.dataset.addPlan) });
+                alert(error ? ('Error: ' + error.message) : msg);
+                loadFamilyPlan();
+            }));
+        }
+
+        async function loadFamilyPlan() {
+            const statusEl = document.getElementById('familyPlanStatus');
+            const container = document.getElementById('familyMembersContainer');
+            const { data, error } = await supabaseClient.rpc('get_my_family_plan');
+            if (error) {
+                statusEl.textContent = 'Could not load your plan.';
+                container.innerHTML = '';
+                return;
+            }
+            if (!data || !data.length) {
+                statusEl.textContent = "You don't have an active subscription yet.";
+                container.innerHTML = '';
+                return;
+            }
+            const plan = data[0];
+            const members = data.filter(r => r.familymemberid !== null);
+            statusEl.textContent = `${plan.planname} plan — ${members.length} / ${plan.maxmembers} members`;
+
+            if (!members.length) {
+                container.innerHTML = '<p style="color:#777; font-size:13px;">No one added yet. Add an accepted friend above.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            members.forEach(m => {
+                const row = document.createElement('div');
+                row.className = 'media-list-item';
+                row.innerHTML = `
+                    <span>${sfEscapeHtml(m.member_name || 'Member')}</span>
+                    <button class="remove-btn" data-remove-member="${m.familymemberid}"><i class="fa-solid fa-trash"></i></button>
+                `;
+                container.appendChild(row);
+            });
+            container.querySelectorAll('[data-remove-member]').forEach(btn => btn.addEventListener('click', async () => {
+                await supabaseClient.rpc('remove_family_member', { p_family_member_id: Number(btn.dataset.removeMember) });
+                loadFamilyPlan();
+            }));
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix - Movie Dashboard</title>
+    <link rel="icon" type="image/png" href="images/Logones.png" sizes="96x96">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/103245324d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body.dashboard-body {
+            background-color: #141414;
+            background-image: none !important;
+        }
+        
+        .dashboard-header {
+            background: #141414;
+            border-bottom: 1px solid #222;
+            padding: 1rem 0;
+        }
+        /* Enforce exact same poster dimensions and ratio across all sections */
+        
+        .streamflix-movie {
+            width: 200px;
+            height: 300px;
+            aspect-ratio: 2 / 3;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform .3s ease, box-shadow .3s ease;
+        }
+        
+        .streamflix-movie:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7), 0 0 22px rgba(11, 108, 255, 0.35);
+        }
+        /* Grid layout updated to 6 columns */
+        
+        .movies-grid-section {
+            padding: 2rem 0 4rem 0;
+        }
+        
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-top: 15px;
+        }
+        
+        .movies-grid .streamflix-movie {
+            width: 100%;
+            height: auto;
+        }
+        
+        @media screen and (max-width: 1200px) {
+            .movies-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media screen and (max-width: 800px) {
+            .movies-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        /* Movie Details Popup Modal Styles (Gorgeous Overhaul) */
+        
+        .movie-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .movie-modal-content {
+            background-color: #181818;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 850px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+            animation: modalFadeIn 0.3s ease;
+            border: 1px solid #2a2a2a;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-hero {
+            display: flex;
+            flex-direction: row;
+            background: linear-gradient(to bottom, #222, #181818);
+            position: relative;
+        }
+        
+        .modal-poster {
+            width: 280px;
+            height: 410px;
+            object-fit: cover;
+            border-top-left-radius: 16px;
+        }
+        
+        .modal-details {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 26px;
+            color: #aaa;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background 0.2s, color 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: #0b6cff;
+            color: #fff;
+            box-shadow: 0 0 14px rgba(11, 108, 255, 0.55);
+        }
+        
+        .modal-title {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .modal-meta {
+            font-size: 14px;
+            color: #46d369;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        /* Star Rating Styles in Modal */
+        
+        .modal-stars-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #f5c518;
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+        
+        .modal-stars-container span.numeric-rating {
+            color: #fff;
+            font-weight: 700;
+            margin-left: 6px;
+            background: rgba(245, 197, 24, 0.15);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .modal-backstory {
+            font-size: 14px;
+            color: #b3b3b3;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .modal-action-btns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .modal-play-btn {
+            background-color: #0b6cff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        
+        .modal-play-btn:hover {
+            background-color: #3586ff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px rgba(11, 108, 255, 0.6), 0 0 30px rgba(11, 108, 255, 0.25);
+        }
+        
+        .modal-secondary-btn {
+            background-color: #2a2a2a;
+            color: #fff;
+        }
+        
+        .modal-secondary-btn:hover {
+            background-color: #3a3a3a;
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
+        }
+        
+        .modal-secondary-btn.in-watchlist {
+            background-color: #133863;
+            color: #46d369;
+        }
+        /* Reviews & Comments Section Inside Modal */
+        
+        .modal-reviews-section {
+            padding: 25px 30px;
+            background: #141414;
+            border-top: 1px solid #2a2a2a;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+        }
+        
+        .reviews-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-rating-input-box {
+            background: #1c1c1c;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .interactive-star-picker {
+            display: flex;
+            gap: 8px;
+            font-size: 20px;
+            color: #444;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        .interactive-star-picker [data-value] {
+            cursor: pointer;
+            transition: transform 0.1s, color 0.1s;
+        }
+        
+        .interactive-star-picker [data-value]:hover {
+            transform: scale(1.2);
+        }
+        
+        .review-textarea {
+            width: 100%;
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 70px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        
+        .review-textarea:focus {
+            outline: none;
+            border-color: #0b6cff;
+        }
+        
+        .submit-review-btn {
+            background: #0b6cff;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .submit-review-btn:hover {
+            background: #3586ff;
+        }
+        
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        
+        .comment-card {
+            background: #1a1a1a;
+            border: 1px solid #262626;
+            border-radius: 8px;
+            padding: 12px 15px;
+        }
+        
+        .comment-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .comment-username {
+            font-weight: 700;
+            font-size: 13px;
+            color: #e5e5e5;
+        }
+        
+        .comment-date {
+            font-size: 11px;
+            color: #777;
+        }
+        
+        .comment-stars {
+            color: #f5c518;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        
+        .comment-body {
+            font-size: 13px;
+            color: #b3b3b3;
+            line-height: 1.4;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .modal-hero {
+                flex-direction: column;
+            }
+            .modal-poster {
+                width: 100%;
+                height: 250px;
+                border-top-left-radius: 0;
+            }
+            .movie-modal-content {
+                max-height: 95vh;
+            }
+        }
+        /* TV Show details modal: seasons + episode list */
+        
+        .show-modal-content {
+            flex-direction: column;
+            max-width: 750px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .show-modal-content .modal-poster {
+            width: 100%;
+            height: 260px;
+        }
+        
+        .show-modal-content .modal-details {
+            padding: 25px 30px;
+        }
+        
+        .season-select-wrapper {
+            margin: 5px 0 18px 0;
+        }
+        
+        .season-select {
+            background: #222;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .episode-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .episode-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #222;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .episode-item:hover {
+            background: #2a2a2a;
+        }
+        
+        .episode-thumb {
+            width: 100px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        
+        .episode-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .episode-number {
+            font-size: 12px;
+            color: #0b6cff;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        
+        .episode-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        
+        .episode-duration {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 4px;
+        }
+        
+        .episode-desc {
+            font-size: 13px;
+            color: #b3b3b3;
+            line-height: 1.4;
+        }
+        
+        .episode-play-icon {
+            color: #0b6cff;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        /* ===== Search Bar & Controls ===== */
+        
+        .main-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .nav-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .search-bar-wrapper {
+            display: flex;
+            align-items: center;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        
+        .search-bar-wrapper.expanded {
+            background: #1e1e1e;
+            border-color: #444;
+        }
+        
+        .search-toggle-btn {
+            background: none;
+            border: none;
+            color: #e5e5e5;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px 10px;
+            flex-shrink: 0;
+        }
+        
+        .search-toggle-btn:hover {
+            color: #0b6cff;
+        }
+        
+        .search-input {
+            width: 0;
+            opacity: 0;
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 14px;
+            padding: 8px 0;
+            transition: width 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+        }
+        
+        .search-bar-wrapper.expanded .search-input {
+            width: 220px;
+            opacity: 1;
+            padding: 8px 4px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+        }
+        
+        .search-clear-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 10px 8px 0;
+        }
+        
+        .search-clear-btn.show {
+            display: block;
+        }
+        
+        .search-clear-btn:hover {
+            color: #fff;
+        }
+        /* ===== Single Genre Dropdown Button Styles ===== */
+        
+        .genre-dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .genre-main-btn {
+            background: #222;
+            color: #e5e5e5;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        
+        .genre-main-btn:hover,
+        .genre-main-btn.active {
+            background: #1e1e1e;
+            border-color: #0b6cff;
+            color: #fff;
+        }
+        
+        .genre-dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            background: #181818;
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+            min-width: 180px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            padding: 6px 0;
+        }
+        
+        .genre-dropdown-menu.show {
+            display: block;
+        }
+        
+        .genre-dropdown-item {
+            width: 100%;
+            background: none;
+            border: none;
+            color: #ccc;
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        
+        .genre-dropdown-item:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+        
+        .genre-dropdown-item.active {
+            color: #0b6cff;
+            background: rgba(11, 108, 255, 0.1);
+        }
+        /* ===== Continue Watching ===== */
+        
+        .continue-card {
+            flex-shrink: 0;
+            width: 200px;
+            cursor: pointer;
+        }
+        
+        .continue-poster-wrap {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .continue-poster-wrap .continue-poster {
+            width: 200px;
+            height: 300px;
+            display: block;
+            object-fit: cover;
+        }
+        
+        .continue-play-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            color: white;
+            font-size: 42px;
+        }
+        
+        .continue-poster-wrap:hover .continue-play-overlay {
+            opacity: 1;
+        }
+        
+        .continue-remove-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.65);
+            border: none;
+            color: white;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease, background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .continue-poster-wrap:hover .continue-remove-btn {
+            opacity: 1;
+        }
+        
+        .continue-remove-btn:hover {
+            background: #0b6cff;
+        }
+        
+        .continue-progress-track {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .continue-progress-fill {
+            height: 100%;
+            background: #0b6cff;
+        }
+        
+        .continue-card-title {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e5e5e5;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        
+        .continue-card-meta {
+            margin-top: 2px;
+            font-size: 11px;
+            color: #777;
+        }
+        /* ===== Custom Blue Scrollbars ===== */
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #141414;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #0b6cff;
+            border-radius: 4px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: #3586ff;
+        }
+        
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #0b6cff #141414;
+        }
+        /* ===== Subscription Modal (Plans + Payment) ===== */
+        
+        .plan-tier-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 18px;
+        }
+        
+        @media screen and (max-width: 700px) {
+            .plan-tier-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .plan-tier-card {
+            background: #1c1c1c;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 22px 18px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+        
+        .plan-tier-card:hover {
+            border-color: #0b6cff;
+            transform: translateY(-3px);
+        }
+        
+        .plan-tier-name {
+            font-size: 17px;
+            font-weight: 800;
+        }
+        
+        .plan-tier-price {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0b6cff;
+        }
+        
+        .plan-tier-price span {
+            font-size: 13px;
+            color: #888;
+            font-weight: 600;
+        }
+        
+        .plan-tier-badge {
+            font-size: 11px;
+            font-weight: 700;
+            color: #46d369;
+            background: rgba(70, 211, 105, 0.12);
+            border-radius: 4px;
+            padding: 3px 8px;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        
+        .plan-tier-features {
+            list-style: none;
+            padding: 0;
+            margin: 6px 0 0 0;
+            font-size: 12.5px;
+            color: #b3b3b3;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .plan-tier-features li i {
+            color: #46d369;
+            margin-right: 6px;
+        }
+        
+        .plan-select-btn {
+            margin-top: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .payment-summary-box {
+            background: #1c1c1c;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin: 18px 0;
+        }
+        
+        .payment-summary-box p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #ddd;
+        }
+        
+        #summaryFinalPrice {
+            font-size: 20px;
+            font-weight: 800;
+            color: #46d369;
+        }
+        
+        .payment-method-options {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .payment-method-option {
+            flex: 1;
+            min-width: 140px;
+            background: #1c1c1c;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .payment-method-option:has(input:checked) {
+            border-color: #0b6cff;
+            background: rgba(11, 108, 255, 0.08);
+        }
+        
+        .payment-fields-group {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .payment-fields-group input[type="text"],
+        .payment-fields-group input[type="tel"] {
+            width: 100%;
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+        
+        .ewallet-provider-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .ewallet-provider-options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            background: #121212;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+
+    <header class="dashboard-header">
+        <div class="container">
+            <nav class="main-nav">
+                <img src="images/Logo.png" alt="StreamFlix Logo" class="nav-logo">
+                <div class="nav-right-controls">
+                    <!-- Single Genre Dropdown Button Component -->
+                    <div class="genre-dropdown-container">
+                        <button id="genreMainBtn" class="genre-main-btn" aria-label="Genres">
+                            <i class="fa-solid fa-filter"></i> <span id="genreButtonLabel">Genres</span> <i class="fa-solid fa-chevron-down" style="font-size: 11px; margin-left: 4px;"></i>
+                        </button>
+                        <div id="genreDropdownMenu" class="genre-dropdown-menu"></div>
+                    </div>
+
+                    <div id="searchBarWrapper" class="search-bar-wrapper">
+                        <button id="searchToggleBtn" class="search-toggle-btn" aria-label="Search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search movies & shows..." autocomplete="off">
+                        <button id="searchClearBtn" class="search-clear-btn" aria-label="Clear search">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <button id="hamburgerBtn" class="hamburger-btn" aria-label="Open menu">
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Slide-in Hamburger Menu -->
+        <div id="hamburgerOverlay" class="hamburger-overlay"></div>
+        <div id="hamburgerMenu" class="hamburger-menu">
+            <button id="hamburgerClose" class="hamburger-close" aria-label="Close menu">&times;</button>
+            <div class="hamburger-user">👤 <span id="userEmailDisplay">User</span></div>
+            <a href="#" id="hamburgerSubscriptionsBtn"><i class="fa-solid fa-crown"></i> Subscriptions</a>
+            <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+            <button type="button" id="hamburgerLogoutBtn" class="hamburger-item hamburger-logout"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+        </div>
+
+        <!-- Search / Genre Results -->
+        <section id="searchResultsSection" class="movies-grid-section" style="display: none;">
+            <div class="container">
+                <h2 class="section-header" id="resultsHeading">Results</h2>
+                <div class="movies-grid" id="resultsGrid"></div>
+                <p id="noResultsMessage" style="display:none; color:#b3b3b3; margin-top: 10px;">No movies or shows matched your search. Try a different title or genre.</p>
+            </div>
+        </section>
+
+        <main class="dashboard-main">
+            <!-- Continue Watching Row -->
+            <section id="continueWatchingSection" class="trending-now" style="padding-top: 2rem; display: none;">
+                <div class="container">
+                    <h2 class="section-header">Continue Watching</h2>
+                    <div class="slider-wrapper" id="sliderContinueWatching">
+                        <button class="slider-btn left" onclick="scrollSlider('sliderContinueWatching', -900)">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <div class="movie-container" id="continueWatchingContainer"></div>
+                        <button class="slider-btn right" onclick="scrollSlider('sliderContinueWatching', 900)">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recents Row -->
+            <section class="trending-now" style="padding-top: 1.5rem;">
+                <div class="container">
+                    <h2 class="section-header">Recently Added</h2>
+
+                    <div class="slider-wrapper" id="sliderRecents">
+                        <button class="slider-btn left" onclick="scrollSlider('sliderRecents', -900)">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+
+                        <!-- Populated from Supabase (public.content) by sfBootCatalog() -->
+                        <div class="movie-container" id="recentlyAddedContainer"></div>
+
+                        <button class="slider-btn right" onclick="scrollSlider('sliderRecents', 900)">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trending Now: real aggregate across every signed-in user's
+                 viewing_history, via the get_trending_content() RPC (RLS
+                 normally restricts each user to their own history, so this
+                 needs a security-definer function). Hidden until someone,
+                 anywhere, has actually watched something. -->
+            <section class="trending-now" id="trendingSection" style="padding-top: 1.5rem; display: none;">
+                <div class="container">
+                    <h2 class="section-header">Trending Now</h2>
+
+                    <div class="slider-wrapper" id="sliderTrending">
+                        <button class="slider-btn left" onclick="scrollSlider('sliderTrending', -900)">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+
+                        <div class="movie-container" id="trendingContainer"></div>
+
+                        <button class="slider-btn right" onclick="scrollSlider('sliderTrending', 900)">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommended For You: computed in sfBootCatalog() from genres the
+                 signed-in user has watchlisted/watched. Hidden if there's nothing
+                 to base a recommendation on yet (new account, nothing watched). -->
+            <section class="trending-now" id="recommendedSection" style="padding-top: 1.5rem; display: none;">
+                <div class="container">
+                    <h2 class="section-header">Recommended For You</h2>
+
+                    <div class="slider-wrapper" id="sliderRecommended">
+                        <button class="slider-btn left" onclick="scrollSlider('sliderRecommended', -900)">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+
+                        <div class="movie-container" id="recommendedContainer"></div>
+
+                        <button class="slider-btn right" onclick="scrollSlider('sliderRecommended', 900)">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MOVIES Grid Section (6 Columns) -->
+            <section class="movies-grid-section">
+                <div class="container">
+                    <h2 class="section-header">MOVIES</h2>
+                    <!-- Populated from Supabase (public.content, contenttype='movie') -->
+                    <div class="movies-grid" id="moviesGridContainer"></div>
+                </div>
+            </section>
+
+            <!-- SHOWS Grid Section (6 Columns) -->
+            <section class="shows-grid-section">
+                <div class="container">
+                    <h2 class="section-header">TV SHOWS & SERIES</h2>
+                    <!-- Populated from Supabase (public.content, contenttype in series/tv show) -->
+                    <div class="shows-grid" id="showsGridContainer"></div>
+                </div>
+            </section>
+        </main>
+    </header>
+
+    <!-- Movie Details Modal Pop Up with Ratings & Reviews -->
+    <div id="movieModal" class="movie-modal">
+        <div class="movie-modal-content">
+            <button class="modal-close" onclick="closeMovieModal()">&times;</button>
+            <div class="modal-hero">
+                <img id="modalPoster" src="" alt="Movie Poster" class="modal-poster">
+                <div class="modal-details">
+                    <div>
+                        <h2 id="modalTitle" class="modal-title"></h2>
+                        <div class="modal-meta">
+                            <span id="modalRating"></span> &nbsp;|&nbsp; <span id="modalYear"></span>
+                        </div>
+                        <div class="modal-stars-container" id="modalStarsContainer">
+                            <!-- Dynamic Star Rating Display -->
+                        </div>
+                        <p id="modalDesc" class="modal-backstory"></p>
+                    </div>
+                    <div class="modal-action-btns">
+                        <button class="modal-play-btn" onclick="playMovie()">
+                            <i class="fa-solid fa-play"></i> Play Movie
+                        </button>
+                        <button id="modalWatchlistBtn" class="modal-play-btn modal-secondary-btn">
+                            <i class="fa-solid fa-plus"></i> Add to Watchlist
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews and Comments Interactive Section -->
+            <div class="modal-reviews-section">
+                <div class="reviews-header">
+                    <span><i class="fa-solid fa-comments"></i> Community Reviews & Ratings</span>
+                    <span id="reviewCountBadge" style="font-size: 13px; color: #888; font-weight: normal;">0 Reviews</span>
+                </div>
+
+                <!-- Add Review Box -->
+                <div class="user-rating-input-box">
+                    <p style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #ddd;">Rate this title:</p>
+                    <div class="interactive-star-picker" id="interactiveStarPicker">
+                        <i class="fa-solid fa-star" data-value="1"></i>
+                        <i class="fa-solid fa-star" data-value="2"></i>
+                        <i class="fa-solid fa-star" data-value="3"></i>
+                        <i class="fa-solid fa-star" data-value="4"></i>
+                        <i class="fa-solid fa-star" data-value="5"></i>
+                    </div>
+                    <textarea id="userReviewText" class="review-textarea" placeholder="Write your review or comment here..." maxlength="50"></textarea>
+                    <p id="reviewCharCount" style="color:#777; font-size:11px; margin: 2px 0 10px 2px;">0 / 50</p>
+                    <button class="submit-review-btn" onclick="submitUserReview()">Post Review</button>
+                </div>
+
+                <!-- Comments List Container -->
+                <div id="commentsList" class="comments-list">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TV Show Details: Seasons & Episodes Modal -->
+    <div id="showModal" class="movie-modal">
+        <div class="movie-modal-content show-modal-content">
+            <button class="modal-close" onclick="closeShowModal()">&times;</button>
+            <img id="showPoster" src="" alt="Show Poster" class="modal-poster">
+            <div class="modal-details">
+                <h2 id="showTitle" class="modal-title"></h2>
+                <div class="modal-stars-container" id="showModalStarsContainer"></div>
+                <p id="showDesc" class="modal-backstory"></p>
+                <div style="margin-bottom: 10px;">
+                    <button id="showWatchlistBtn" class="modal-play-btn modal-secondary-btn">
+                        <i class="fa-solid fa-plus"></i> Add to Watchlist
+                    </button>
+                </div>
+                <div class="season-select-wrapper">
+                    <select id="seasonSelect" class="season-select"></select>
+                </div>
+                <div id="episodeList" class="episode-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Modal: Plan tiers + Payment step -->
+    <!-- IDs/functions here match what app.js already expects (openSubscriptionModal,
+         closeSubscriptionModal, selectPlan, backToPlans, togglePaymentDetails, processPayment).
+         Edit the plan names/prices/features below to match your actual pricing. -->
+    <div id="subscriptionModal" class="movie-modal">
+        <div class="movie-modal-content" style="max-width: 700px;">
+            <button class="modal-close" onclick="closeSubscriptionModal()">&times;</button>
+
+            <!-- Step 1: choose a plan -->
+            <div id="tierSelectionStep" style="padding: 30px;">
+                <h2 class="modal-title" style="font-size: 24px; margin-bottom: 4px;"><i class="fa-solid fa-crown" style="color:#f5c518;"></i> Choose Your Plan</h2>
+                <p class="modal-backstory" style="margin-bottom: 0;">Pick the subscription that fits how you watch. You can change or cancel anytime.</p>
+
+                <div class="plan-tier-grid">
+                    <div class="plan-tier-card">
+                        <div class="plan-tier-name">Basic</div>
+                        <div class="plan-tier-price">₱149<span>/mo</span></div>
+                        <ul class="plan-tier-features">
+                            <li><i class="fa-solid fa-check"></i>720p streaming</li>
+                            <li><i class="fa-solid fa-check"></i>1 device at a time</li>
+                            <li><i class="fa-solid fa-check"></i>Movies & TV shows</li>
+                        </ul>
+                        <button class="modal-play-btn plan-select-btn" onclick="selectPlan('Basic', 99, 0.10)">Select Basic</button>
+                    </div>
+
+                    <div class="plan-tier-card">
+                        <span class="plan-tier-badge">MOST POPULAR</span>
+                        <div class="plan-tier-name">Standard</div>
+                        <div class="plan-tier-price">₱249<span>/mo</span></div>
+                        <ul class="plan-tier-features">
+                            <li><i class="fa-solid fa-check"></i>Full HD streaming</li>
+                            <li><i class="fa-solid fa-check"></i>2 devices at a time</li>
+                            <li><i class="fa-solid fa-check"></i>Downloads for offline viewing</li>
+                        </ul>
+                        <button class="modal-play-btn plan-select-btn" onclick="selectPlan('Standard', 169, 0.15)">Select Standard</button>
+                    </div>
+
+                    <div class="plan-tier-card">
+                        <div class="plan-tier-name">Premium</div>
+                        <div class="plan-tier-price">₱349<span>/mo</span></div>
+                        <ul class="plan-tier-features">
+                            <li><i class="fa-solid fa-check"></i>4K + HDR streaming</li>
+                            <li><i class="fa-solid fa-check"></i>4 devices at a time</li>
+                            <li><i class="fa-solid fa-check"></i>Downloads for offline viewing</li>
+                        </ul>
+                        <button class="modal-play-btn plan-select-btn" onclick="selectPlan('Premium', 259, 0.20)">Select Premium</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: payment method -->
+            <div id="paymentMethodStep" style="padding: 30px; display: none;">
+                <h2 class="modal-title" style="font-size: 22px; margin-bottom: 4px;">Payment Details</h2>
+
+                <div class="payment-summary-box">
+                    <p id="summaryPlanName" style="font-weight: 700; font-size: 15px;">Selected Plan:</p>
+                    <p>Original price: <span id="summaryOriginalPrice"></span></p>
+                    <p id="summaryDiscountText" style="color: #46d369;"></p>
+                    <p>Total due today: <span id="summaryFinalPrice"></span></p>
+                </div>
+
+                <div class="payment-method-options">
+                    <label class="payment-method-option">
+                        <input type="radio" name="paymentMethod" value="Debit Card" onchange="togglePaymentDetails('debit')">
+                        <i class="fa-solid fa-credit-card"></i> Debit / Credit Card
+                    </label>
+                    <label class="payment-method-option">
+                        <input type="radio" name="paymentMethod" value="E-Wallet" onchange="togglePaymentDetails('ewallet')">
+                        <i class="fa-solid fa-wallet"></i> E-Wallet
+                    </label>
+                </div>
+
+                <div id="debitDetails" class="payment-fields-group">
+                    <input type="text" placeholder="Card number" maxlength="19">
+                    <input type="text" placeholder="Cardholder name">
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" placeholder="MM/YY" style="width:50%;">
+                        <input type="text" placeholder="CVV" style="width:50%;">
+                    </div>
+                </div>
+
+                <div id="ewalletDetails" class="payment-fields-group">
+                    <div class="ewallet-provider-options">
+                        <label><input type="radio" name="ewalletProvider" value="GCash"> GCash</label>
+                        <label><input type="radio" name="ewalletProvider" value="Maya"> Maya</label>
+                        <label><input type="radio" name="ewalletProvider" value="PayPal"> PayPal</label>
+                    </div>
+                    <input type="tel" placeholder="Mobile number linked to your e-wallet">
+                </div>
+
+                <div class="modal-action-btns" style="margin-top: 10px;">
+                    <button class="modal-play-btn modal-secondary-btn" onclick="backToPlans()">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button class="modal-play-btn" onclick="processPayment()">
+                        <i class="fa-solid fa-lock"></i> Confirm & Subscribe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function scrollSlider(sliderId, distance) {
+            const wrapper = document.getElementById(sliderId);
+            if (wrapper) {
+                const container = wrapper.querySelector(".movie-container");
+                if (container) {
+                    container.scrollBy({
+                        left: distance,
+                        behavior: "smooth"
+                    });
+                }
+            }
+        }
+
+        // ===============================
+        // RATINGS & REVIEWS — stored in Supabase (public.review), one per
+        // signed-in user per title (contentid). Replaces the old localStorage
+        // version so reviews are shared across everyone, not just one browser.
+        // ===============================
+        let currentUserRatingSelection = 5;
+
+        // Interactive Star Picker Logic
+        // Font Awesome's kit replaces each <i class="fa-star"> with an <svg>, which
+        // throws away listeners attached directly to the <i> elements. So we listen
+        // on the container instead and look up the star with closest('[data-value]').
+        const starPicker = document.getElementById('interactiveStarPicker');
+
+        function starFromEvent(e) {
+            const el = e.target.closest ? e.target.closest('[data-value]') : null;
+            return el && starPicker.contains(el) ? el : null;
+        }
+
+        if (starPicker) {
+            starPicker.addEventListener('click', (e) => {
+                const star = starFromEvent(e);
+                if (!star) return;
+                currentUserRatingSelection = Number(star.getAttribute('data-value'));
+                highlightPickerStars(currentUserRatingSelection);
+            });
+            // Hover preview: light up every star up to the one under the mouse.
+            starPicker.addEventListener('mouseover', (e) => {
+                const star = starFromEvent(e);
+                if (star) highlightPickerStars(Number(star.getAttribute('data-value')));
+            });
+            starPicker.addEventListener('mouseleave', () => {
+                highlightPickerStars(currentUserRatingSelection);
+            });
+        }
+
+        function highlightPickerStars(rating) {
+            document.querySelectorAll('#interactiveStarPicker [data-value]').forEach(s => {
+                const val = Number(s.getAttribute('data-value'));
+                // Inline color works for both <i> and the <svg> that replaces it.
+                s.style.color = val <= rating ? '#f5c518' : '#444';
+            });
+        }
+
+        function sfUpdateReviewCharCount() {
+            const textarea = document.getElementById('userReviewText');
+            const counter = document.getElementById('reviewCharCount');
+            if (!textarea || !counter) return;
+            counter.textContent = `${textarea.value.length} / 50`;
+            counter.style.color = textarea.value.length >= 50 ? '#ff8080' : '#777';
+        }
+        document.getElementById('userReviewText').addEventListener('input', sfUpdateReviewCharCount);
+
+        function renderStarIcons(ratingOutOf5) {
+            let html = '';
+            const fullStars = Math.floor(ratingOutOf5);
+            const hasHalf = ratingOutOf5 - fullStars >= 0.5;
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    html += '<i class="fa-solid fa-star"></i>';
+                } else if (i === fullStars + 1 && hasHalf) {
+                    html += '<i class="fa-solid fa-star-half-stroke"></i>';
+                } else {
+                    html += '<i class="fa-regular fa-star" style="color: #666;"></i>';
+                }
+            }
+            return html;
+        }
+
+        let activeReviewContentId = null;
+
+        async function loadReviewsForTitle(contentid) {
+            activeReviewContentId = contentid;
+            const commentsList = document.getElementById('commentsList');
+            const countBadge = document.getElementById('reviewCountBadge');
+
+            if (!contentid) {
+                commentsList.innerHTML = '<p style="color:#777; font-size:13px;">Reviews aren\'t available for this title yet.</p>';
+                countBadge.textContent = '0 Reviews';
+                return;
+            }
+
+            commentsList.innerHTML = '<p style="color:#777; font-size:13px;">Loading reviews...</p>';
+
+            const { data: rows, error } = await supabaseClient
+                .from('review')
+                .select('rating, comment, reviewdate, users(firstname, lastname, profilename)')
+                .eq('contentid', contentid);
+
+            commentsList.innerHTML = '';
+
+            if (error) {
+                console.error('[StreamFlix] could not load reviews:', error.message);
+                commentsList.innerHTML = '<p style="color:#777; font-size:13px;">Could not load reviews right now.</p>';
+                countBadge.textContent = '0 Reviews';
+                document.getElementById('modalStarsContainer').innerHTML = renderStarIcons(0) +
+                    '<span class="numeric-rating">-- / 5.0</span>';
+                return;
+            }
+
+            let totalRatingSum = 0;
+            (rows || []).forEach(rev => {
+                totalRatingSum += rev.rating || 0;
+                const u = rev.users || {};
+                const name = (u.profilename && u.profilename.trim()) ||
+                    [u.firstname, u.lastname].filter(Boolean).join(' ').trim() ||
+                    'StreamFlix Member';
+                const card = document.createElement('div');
+                card.className = 'comment-card';
+                card.innerHTML = `
+                    <div class="comment-header-row">
+                        <span class="comment-username"><i class="fa-solid fa-circle-user" style="color:#0b6cff; margin-right:6px;"></i>${escapeHtml(name)}</span>
+                        <span class="comment-date">${escapeHtml(rev.reviewdate || '')}</span>
+                    </div>
+                    <div class="comment-stars">${renderStarIcons(rev.rating || 0)}</div>
+                    <div class="comment-body">${escapeHtml(rev.comment || '')}</div>
+                `;
+                commentsList.appendChild(card);
+            });
+
+            const count = (rows || []).length;
+            countBadge.textContent = `${count} Review${count === 1 ? '' : 's'}`;
+            const avgRating = count ? (totalRatingSum / count).toFixed(1) : "0.0";
+
+            document.getElementById('modalStarsContainer').innerHTML = `
+                ${renderStarIcons(avgRating)}
+                <span class="numeric-rating">${avgRating} / 5.0</span>
+            `;
+
+            // Reset the "write a review" input fields for this viewing.
+            currentUserRatingSelection = 5;
+            highlightPickerStars(5);
+            document.getElementById('userReviewText').value = '';
+            sfUpdateReviewCharCount();
+        }
+
+        async function submitUserReview() {
+            const textInput = document.getElementById('userReviewText');
+            const text = textInput.value.trim();
+            if (!text) {
+                alert("Please write a review comment before posting.");
+                return;
+            }
+            if (text.length > 50) {
+                alert("Reviews are limited to 50 characters.");
+                return;
+            }
+            if (!activeReviewContentId) {
+                alert("This title isn't in the database yet, so it can't be reviewed.");
+                return;
+            }
+
+            const userid = await sfGetUserId();
+            if (!userid) {
+                alert("Please sign in again to post a review.");
+                return;
+            }
+
+            const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+            // One review per user per title — posting again updates it.
+            const { error } = await supabaseClient.from('review').upsert({
+                userid,
+                contentid: activeReviewContentId,
+                rating: currentUserRatingSelection,
+                comment: text,
+                reviewdate: today
+            }, { onConflict: 'userid,contentid' });
+
+            if (error) {
+                alert("Could not post your review: " + error.message);
+                return;
+            }
+
+            loadReviewsForTitle(activeReviewContentId);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Popup Modal Logic
+        const modal = document.getElementById('movieModal');
+        const modalPoster = document.getElementById('modalPoster');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalRating = document.getElementById('modalRating');
+        const modalYear = document.getElementById('modalYear');
+        const modalDesc = document.getElementById('modalDesc');
+        const modalWatchlistBtn = document.getElementById('modalWatchlistBtn');
+
+        let currentVideoFile = "";
+        let currentMovie = null;
+
+        function updateWatchlistBtn(title) {
+            if (!modalWatchlistBtn) return;
+            if (isInWatchlist(title)) {
+                modalWatchlistBtn.innerHTML = '<i class="fa-solid fa-check"></i> In Watchlist';
+                modalWatchlistBtn.classList.add('in-watchlist');
+            } else {
+                modalWatchlistBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add to Watchlist';
+                modalWatchlistBtn.classList.remove('in-watchlist');
+            }
+        }
+
+        function handleMovieClick(movie) {
+            const title = movie.getAttribute('data-title') || "StreamFlix Original";
+            const year = movie.getAttribute('data-year') || "2026";
+            const desc = movie.getAttribute('data-desc') || "An immersive cinematic experience brought exclusively to you by StreamFlix. Dive into the backstory and experience the journey.";
+            const contentid = movie.getAttribute('data-contentid') || null;
+
+            if (movie.getAttribute('data-type') === 'show') {
+                openShowModal(title, movie.src, desc, year);
+                return;
+            }
+
+            modalPoster.src = movie.src;
+            modalTitle.textContent = title;
+            modalRating.textContent = movie.getAttribute('data-rating') || "95% Match";
+            modalYear.textContent = year;
+            modalDesc.textContent = desc;
+            currentVideoFile = movie.getAttribute('data-video');
+            currentMovie = {
+                title: title,
+                poster: movie.src,
+                year: year,
+                video: currentVideoFile,
+                contentid: contentid
+            };
+
+            loadReviewsForTitle(contentid);
+            updateWatchlistBtn(title);
+            modal.style.display = 'flex';
+        }
+
+        // Called once after the catalog has been injected into the DOM (and
+        // again for any elements added later, e.g. search results).
+        function sfAttachMovieClickHandlers(root = document) {
+            root.querySelectorAll('.streamflix-movie').forEach(movie => {
+                if (movie.dataset.sfBound) return;
+                movie.dataset.sfBound = '1';
+                movie.addEventListener('click', () => handleMovieClick(movie));
+            });
+        }
+
+        if (modalWatchlistBtn) {
+            modalWatchlistBtn.addEventListener('click', () => {
+                if (!currentMovie) return;
+                if (isInWatchlist(currentMovie.title)) {
+                    removeFromWatchlistByTitle(currentMovie.title);
+                } else {
+                    addToWatchlist(currentMovie);
+                }
+                updateWatchlistBtn(currentMovie.title);
+            });
+        }
+
+        function closeMovieModal() {
+            modal.style.display = 'none';
+        }
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeMovieModal();
+            }
+        });
+
+        // ===============================
+        // CONTINUE WATCHING
+        // ===============================
+        function resumeContinueWatching(item) {
+            if (!item || !item.video) {
+                alert("Sorry, this can't be resumed right now.");
+                return;
+            }
+            localStorage.setItem('streamflix_now_playing', JSON.stringify({
+                title: item.title,
+                poster: item.poster || '',
+                year: item.year || '',
+                video: item.video
+            }));
+            window.location.href = `player.html?movie=${encodeURIComponent(item.video)}`;
+        }
+
+        // "Currently Watching" - read live from Supabase (public.viewing_history,
+        // RLS-scoped to the signed-in user) instead of localStorage, so it's the
+        // same on every device, not just the browser that watched it.
+        // viewing_history has no "completed" column, so in-progress is inferred
+        // from progress < 100.
+        async function renderContinueWatching() {
+            const section = document.getElementById('continueWatchingSection');
+            const container = document.getElementById('continueWatchingContainer');
+            if (!section || !container) return;
+
+            const { data: rows, error } = await supabaseClient
+                .from('viewing_history')
+                .select('contentid, progress, lastwatched, content(title, thumbnail)')
+                .lt('progress', 100)
+                .order('lastwatched', { ascending: false })
+                .limit(12);
+
+            container.innerHTML = '';
+
+            if (error || !rows || !rows.length) {
+                section.style.display = 'none';
+                if (error) console.error('[StreamFlix] could not load continue watching:', error.message);
+                return;
+            }
+            section.style.display = 'block';
+
+            rows.forEach(row => {
+                const c = row.content || {};
+                const item = {
+                    title: sfTitleCase(c.title || ''),
+                    poster: 'images/' + (c.thumbnail || ''),
+                    video: c.title || '',
+                    progress: Math.round(row.progress || 0)
+                };
+                const card = document.createElement('div');
+                card.className = 'continue-card';
+                card.innerHTML = `
+                    <div class="continue-poster-wrap">
+                        <img src="${item.poster}" class="continue-poster" alt="${escapeHtml(item.title)}">
+                        <div class="continue-play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+                        <button class="continue-remove-btn" aria-label="Remove from Continue Watching">&times;</button>
+                        <div class="continue-progress-track">
+                            <div class="continue-progress-fill" style="width: ${item.progress}%;"></div>
+                        </div>
+                    </div>
+                    <div class="continue-card-title">${escapeHtml(item.title)}</div>
+                    <div class="continue-card-meta">${item.progress}% watched</div>
+                `;
+                card.querySelector('.continue-poster-wrap').addEventListener('click', () => resumeContinueWatching(item));
+                card.querySelector('.continue-remove-btn').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const userid = await sfGetUserId();
+                    if (userid) {
+                        await supabaseClient.from('viewing_history').delete()
+                            .eq('userid', userid).eq('contentid', row.contentid);
+                    }
+                    renderContinueWatching();
+                });
+                container.appendChild(card);
+            });
+        }
+
+        // ===============================
+        // CONTENT CATALOG — loaded from Supabase (public.content + public.genre)
+        // instead of hardcoded HTML. Add a row to `content` in Supabase and it
+        // shows up here next page load, no HTML edits needed.
+        // ===============================
+        // DB titles are stored lowercase ("avengers: endgame") - title-case them
+        // for display only. Matching elsewhere is already case-insensitive, so
+        // this doesn't affect watchlist/history/video-file lookups.
+        function sfTitleCase(str) {
+            return (str || '').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1));
+        }
+
+        function sfBuildPosterEl(item) {
+            const displayTitle = sfTitleCase(item.title);
+            const img = document.createElement('img');
+            img.src = 'images/' + (item.thumbnail || '');
+            img.alt = displayTitle;
+            img.className = 'streamflix-movie';
+            img.setAttribute('data-contentid', item.contentid);
+            img.setAttribute('data-title', displayTitle);
+            img.setAttribute('data-genre', item.genrename || 'Other');
+            img.setAttribute('data-year', (item.releasedate || '').slice(0, 4) || '2026');
+            img.setAttribute('data-rating', item.genrename || '');
+            img.setAttribute('data-desc', item.description || '');
+            // No stored video filename — matched by slugifying the title
+            // (handled in player.html), e.g. "Avengers: Endgame" -> avengers-endgame.mp4
+            img.setAttribute('data-video', item.title);
+            if (item.contenttype && item.contenttype.toLowerCase() !== 'movie') {
+                img.setAttribute('data-type', 'show');
+            }
+            // No poster file at that path (404) -> remove this card instead of
+            // showing a broken-image icon. Runs per-instance, so this title still
+            // shows wherever else it has a working poster (e.g. Recently Added).
+            img.addEventListener('error', () => img.remove(), { once: true });
+            return img;
+        }
+
+        async function sfLoadTrending(allContent) {
+            const section = document.getElementById('trendingSection');
+            const container = document.getElementById('trendingContainer');
+            if (!section || !container) return;
+
+            const { data: trending, error } = await supabaseClient.rpc('get_trending_content', { p_limit: 10 });
+            if (error || !trending || !trending.length) {
+                section.style.display = 'none';
+                if (error) console.error('[StreamFlix] could not load trending:', error.message);
+                return;
+            }
+
+            const byId = new Map(allContent.map(c => [c.contentid, c]));
+            const items = trending.map(t => byId.get(t.contentid)).filter(Boolean);
+            if (!items.length) { section.style.display = 'none'; return; }
+
+            container.innerHTML = '';
+            items.forEach(item => container.appendChild(sfBuildPosterEl(item)));
+            section.style.display = 'block';
+        }
+
+        async function sfLoadRecommended(allContent) {
+            const section = document.getElementById('recommendedSection');
+            const container = document.getElementById('recommendedContainer');
+            if (!section || !container) return;
+
+            // Base the recommendation on genres from the signed-in user's
+            // watchlist and history (both already cached in localStorage by
+            // app.js). New accounts with nothing watched yet just see no row.
+            const seedTitles = [...getWatchlist(), ...getHistory()].map(i => (i.title || '').toLowerCase());
+            if (!seedTitles.length) { section.style.display = 'none'; return; }
+
+            const seedGenres = new Set(
+                allContent.filter(c => seedTitles.includes((c.title || '').toLowerCase()))
+                    .map(c => c.genrename).filter(Boolean)
+            );
+            if (!seedGenres.size) { section.style.display = 'none'; return; }
+
+            const recommended = allContent.filter(c =>
+                seedGenres.has(c.genrename) && !seedTitles.includes((c.title || '').toLowerCase())
+            );
+            if (!recommended.length) { section.style.display = 'none'; return; }
+
+            container.innerHTML = '';
+            recommended.forEach(item => container.appendChild(sfBuildPosterEl(item)));
+            section.style.display = 'block';
+        }
+
+        // Legacy catalog — the original demo titles, kept so every poster that
+        // used to work still shows up. These aren't in Supabase (no contentid),
+        // so reviews/recommendations are skipped for them, but watchlist/history
+        // still work since those are matched by title.
+        const sfLegacyCatalog = [
+            { title: "Spider-Man: Brand New Day", genre: "Action, Superhero", year: "2026", desc: "Spider-Man returns for a brand-new chapter as Peter Parker faces a new era filled with danger, mystery, and unexpected challenges.", poster: "images/gagamboy.jpg" },
+            { title: "The Invite", genre: "Thriller, Horror", year: "2026", desc: "A mysterious invitation brings a group of people together for what appears to be an ordinary gathering, but the evening soon takes an unsettling turn.", poster: "images/invite.jpg" },
+            { title: "Minions & Monsters", genre: "Animation, Comedy", year: "2026", desc: "The mischievous Minions are back for a hilarious new adventure when they find themselves caught up in a chaotic encounter with mysterious monsters.", poster: "images/Minions.jpg" },
+            { title: "Masters of the Universe", genre: "Action, Fantasy", year: "2026", desc: "Prince Adam discovers a legendary power that transforms him into He-Man, the heroic defender of Eternia.", poster: "images/masters.jpg" },
+            { title: "The Mandalorian and Grogu", genre: "Sci-Fi, Action", year: "2026", desc: "Din Djarin and Grogu embark on a new adventure across the galaxy, taking on dangerous missions while encountering powerful enemies.", poster: "images/grogu.jpg" },
+            { title: "The Death of Robin Hood", genre: "Action, Adventure", year: "2026", desc: "After years of living as a legendary outlaw, Robin Hood finds himself facing the consequences of his past.", poster: "images/hood.jpg" },
+            { title: "Michael", genre: "Drama, Music", year: "2026", desc: "Michael follows the life and career of Michael Jackson, exploring his rise from a young performer with the Jackson 5.", poster: "images/michael.jpg" },
+            { title: "The Punisher: One Last Kill", genre: "Action, Crime", year: "2026", desc: "Frank Castle returns for what could be his final mission as the Punisher.", poster: "images/punisher.jpg" },
+            { title: "Mortal Kombat II", genre: "Action, Fantasy", year: "2026", desc: "The battle for Earthrealm continues as the champions of Mortal Kombat face an even greater threat.", poster: "images/kombat.jpg" },
+            { title: "Toys Story 5", genre: "Animation, Family", year: "2026", desc: "Woody, Buzz Lightyear, Jessie, and the beloved toys return for a brand-new adventure.", poster: "images/toys.jpg" },
+            { title: "Beast", genre: "Thriller, Horror", year: "2026", desc: "A family getaway turns into a fight for survival when a terrifying predator begins stalking them.", poster: "images/beast.jpg" },
+            { title: "Backrooms", genre: "Horror", year: "2026", desc: "A terrifying journey begins when a group of people suddenly find themselves trapped in the mysterious Backrooms.", poster: "images/backrooms.jpg" },
+            { title: "Whistle", genre: "Horror", year: "2026", desc: "A mysterious ancient artifact unleashes a terrifying curse after a group of students accidentally discovers it.", poster: "images/whistle.jpg" },
+            { title: "Leo Cronin's The Mummy", genre: "Horror, Adventure", year: "2026", desc: "A mysterious discovery awakens an ancient evil that has remained hidden for centuries.", poster: "images/mummy.jpg" },
+            { title: "Supergirl", genre: "Action, Superhero", year: "2026", desc: "Kara Zor-El, better known as Supergirl, sets out across the galaxy on a personal journey.", poster: "images/supergirl.jpg" },
+            { title: "Scary Movie", genre: "Comedy, Horror", year: "2026", desc: "The Scary Movie franchise returns with another outrageous horror-comedy adventure.", poster: "images/scary.jpg" },
+            { title: "Disclosure Day", genre: "Sci-Fi, Mystery", year: "2026", desc: "A mysterious event changes everything when humanity is confronted with a revelation unlike anything it has ever known.", poster: "images/disclosure.jpg" },
+            { title: "Fifty Shades Darker", genre: "Romance, Drama", year: "2017", desc: "While Christian wrestles with his inner demons, Anastasia must confront the anger and envy of the women who came before her.", poster: "images/fifty-shades.jpg" },
+            { title: "Frozen II", genre: "Animation, Family", year: "2019", desc: "Elsa, Anna, Kristoff, Olaf and Sven travel far beyond Arendelle's gates.", poster: "images/frozen.webp" },
+            { title: "The Lion King", genre: "Animation, Family", year: "2019", desc: "After the tragic loss of his father, a young lion prince flees his kingdom.", poster: "images/king.webp" },
+            { title: "Moana", genre: "Animation, Family", year: "2026", desc: "An adventurous teenager sails out on a daring mission to save her people.", poster: "images/moana.webp" },
+            { title: "G.O.A.T.", genre: "Documentary, Sports", year: "2025", desc: "An inspiring journey exploring the greatest icons of the game.", poster: "images/goat.webp" },
+            { title: "The First Slam Dunk", genre: "Animation, Sports", year: "2022", desc: "Ryota Miyagi and the Shohoku high school basketball team take the court.", poster: "images/slam.webp" },
+            { title: "Godzilla x Kong: The New Empire", genre: "Action, Sci-Fi", year: "2024", desc: "The almighty Godzilla and the fearsome Kong unleash a colossal clash against an undiscovered menace.", poster: "images/gxk.jpg" },
+            { title: "Uncle Drew", genre: "Comedy, Sports", year: "2018", desc: "After draining his life savings to enter a team in the Rucker Classic streetball tournament.", poster: "images/uncle drew.jpg" },
+            { title: "It's Showtime", genre: "Variety, Reality", year: "2009", desc: "A Philippine noontime musical and party variety show.", poster: "images/showtime.webp", type: "show" },
+            { title: "Eat Bulaga", genre: "Variety, Reality", year: "1979", desc: "Eat Bulaga! is a noon-time variety show in the Philippines produced by Television And Production Exponents Inc.", poster: "images/bulaga.jpg", type: "show" },
+            { title: "Reacher", genre: "Action, Drama", year: "2022", desc: "Jack Reacher, recently discharged from the Army, travels to Margrave, GA.", poster: "images/reacher.jpg", type: "show" },
+            { title: "Game of Thrones", genre: "Fantasy, Drama", year: "2011", desc: "Nine noble families fight for control over the mythical lands of Westeros.", poster: "images/thrones.jpg", type: "show" },
+            { title: "X-Men '97", genre: "Animation, Sci-Fi", year: "2024", desc: "The X-Men's dream is put to the test as mutant-human relations reach a tipping point.", poster: "images/xmen.jpg", type: "show" },
+            { title: "WWE: Unreal", genre: "Documentary, Reality", year: "2024", desc: "A behind-the-scenes docuseries on StreamFlix that lifts the curtain on World Wrestling Entertainment.", poster: "images/unreal.jpg", type: "show" }
+        ];
+
+        function sfBuildLegacyPosterEl(item) {
+            const img = document.createElement('img');
+            img.src = item.poster;
+            img.alt = item.title;
+            img.className = 'streamflix-movie';
+            img.setAttribute('data-title', item.title);
+            img.setAttribute('data-genre', item.genre);
+            img.setAttribute('data-year', item.year);
+            img.setAttribute('data-rating', '');
+            img.setAttribute('data-desc', item.desc);
+            img.setAttribute('data-video', item.title);
+            if (item.type === 'show') img.setAttribute('data-type', 'show');
+            return img;
+        }
+
+        async function sfBootCatalog() {
+            if (window.sfProfileReady) await window.sfProfileReady;
+
+            const { data, error } = await supabaseClient
+                .from('content')
+                .select('contentid, title, contenttype, releasedate, description, thumbnail, genre(genrename)')
+                .order('contentid', { ascending: false });
+
+            const recentContainer = document.getElementById('recentlyAddedContainer');
+            const moviesContainer = document.getElementById('moviesGridContainer');
+            const showsContainer = document.getElementById('showsGridContainer');
+
+            if (error || !data) {
+                console.error('[StreamFlix] could not load content catalog:', error && error.message);
+                if (recentContainer) recentContainer.innerHTML = '<p style="color:#888; padding: 20px;">Could not load movies right now.</p>';
+                return [];
+            }
+
+            // Flatten the joined genre(genrename) object into a plain field.
+            const allContent = data.map(row => ({ ...row, genrename: row.genre ? row.genre.genrename : '' }));
+
+            recentContainer.innerHTML = '';
+            moviesContainer.innerHTML = '';
+            showsContainer.innerHTML = '';
+
+            allContent.forEach(item => {
+                recentContainer.appendChild(sfBuildPosterEl(item));
+                const isShow = item.contenttype && item.contenttype.toLowerCase() !== 'movie';
+                (isShow ? showsContainer : moviesContainer).appendChild(sfBuildPosterEl(item));
+            });
+
+            // Legacy demo titles - appended after the DB ones so every poster
+            // that used to show up still does, even for titles not yet in Supabase.
+            sfLegacyCatalog.forEach(item => {
+                recentContainer.appendChild(sfBuildLegacyPosterEl(item));
+                (item.type === 'show' ? showsContainer : moviesContainer).appendChild(sfBuildLegacyPosterEl(item));
+            });
+
+            await sfLoadTrending(allContent);
+            await sfLoadRecommended(allContent);
+
+            sfAttachMovieClickHandlers();
+            renderContinueWatching();
+            return allContent;
+        }
+
+        // ===============================
+        // SEARCH & SINGLE BUTTON GENRE DROPDOWN
+        // Initialized AFTER the catalog above is injected into the DOM, since
+        // it indexes whatever .streamflix-movie elements exist at the time.
+        // ===============================
+        function sfInitSearchAndGenre() {
+            const catalog = [];
+            const seenTitles = new Set();
+            document.querySelectorAll('.streamflix-movie').forEach(el => {
+                const title = el.getAttribute('data-title');
+                if (!title || seenTitles.has(title)) return;
+                seenTitles.add(title);
+                catalog.push({
+                    contentid: el.getAttribute('data-contentid') || '',
+                    title: title,
+                    src: el.src,
+                    alt: el.alt || title,
+                    year: el.getAttribute('data-year') || '',
+                    rating: el.getAttribute('data-rating') || '',
+                    desc: el.getAttribute('data-desc') || '',
+                    video: el.getAttribute('data-video') || '',
+                    type: el.getAttribute('data-type') || 'movie',
+                    genres: (el.getAttribute('data-genre') || 'Other').split(',').map(g => g.trim())
+                });
+            });
+
+            const genreOrder = [];
+            catalog.forEach(item => {
+                item.genres.forEach(g => {
+                    if (!genreOrder.includes(g)) genreOrder.push(g);
+                });
+            });
+
+            const searchBarWrapper = document.getElementById('searchBarWrapper');
+            const searchToggleBtn = document.getElementById('searchToggleBtn');
+            const searchInput = document.getElementById('searchInput');
+            const searchClearBtn = document.getElementById('searchClearBtn');
+
+            const genreMainBtn = document.getElementById('genreMainBtn');
+            const genreButtonLabel = document.getElementById('genreButtonLabel');
+            const genreDropdownMenu = document.getElementById('genreDropdownMenu');
+
+            const resultsSection = document.getElementById('searchResultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            const resultsHeading = document.getElementById('resultsHeading');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const originalSections = document.querySelectorAll('main.dashboard-main > section');
+
+            let activeGenre = 'All';
+
+            function buildGenreDropdown() {
+                genreDropdownMenu.innerHTML = '';
+                const allBtn = document.createElement('button');
+                allBtn.className = 'genre-dropdown-item active';
+                allBtn.textContent = 'All Genres';
+                allBtn.dataset.genre = 'All';
+                genreDropdownMenu.appendChild(allBtn);
+
+                genreOrder.forEach(genre => {
+                    const btn = document.createElement('button');
+                    btn.className = 'genre-dropdown-item';
+                    btn.textContent = genre;
+                    btn.dataset.genre = genre;
+                    genreDropdownMenu.appendChild(btn);
+                });
+
+                genreDropdownMenu.querySelectorAll('.genre-dropdown-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        activeGenre = item.dataset.genre;
+                        genreButtonLabel.textContent = activeGenre === 'All' ? 'Genres' : activeGenre;
+
+                        genreDropdownMenu.querySelectorAll('.genre-dropdown-item').forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+
+                        genreMainBtn.classList.toggle('active', activeGenre !== 'All');
+                        genreDropdownMenu.classList.remove('show');
+                        applyFilters();
+                    });
+                });
+            }
+
+            genreMainBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                genreDropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!genreMainBtn.contains(e.target) && !genreDropdownMenu.contains(e.target)) {
+                    genreDropdownMenu.classList.remove('show');
+                }
+            });
+
+            function renderResults(matches) {
+                resultsGrid.innerHTML = '';
+                if (matches.length === 0) {
+                    noResultsMessage.style.display = 'block';
+                    return;
+                }
+                noResultsMessage.style.display = 'none';
+
+                matches.forEach(item => {
+                    const img = document.createElement('img');
+                    img.src = item.src;
+                    img.alt = item.alt;
+                    img.className = 'streamflix-movie';
+                    img.setAttribute('data-contentid', item.contentid);
+                    img.setAttribute('data-title', item.title);
+                    img.setAttribute('data-year', item.year);
+                    img.setAttribute('data-rating', item.rating);
+                    img.setAttribute('data-desc', item.desc);
+                    img.setAttribute('data-video', item.video);
+                    if (item.type === 'show') img.setAttribute('data-type', 'show');
+                    img.addEventListener('error', () => img.remove(), { once: true });
+                    img.addEventListener('click', () => handleMovieClick(img));
+                    resultsGrid.appendChild(img);
+                });
+            }
+
+            function applyFilters() {
+                const query = searchInput.value.trim().toLowerCase();
+                const isFiltering = query.length > 0 || activeGenre !== 'All';
+
+                searchClearBtn.classList.toggle('show', query.length > 0);
+
+                if (!isFiltering) {
+                    resultsSection.style.display = 'none';
+                    originalSections.forEach(s => {
+                        if (s.id === 'continueWatchingSection') {
+                            renderContinueWatching();
+                        } else {
+                            s.style.display = '';
+                        }
+                    });
+                    return;
+                }
+
+                originalSections.forEach(s => s.style.display = 'none');
+                resultsSection.style.display = 'block';
+
+                const matches = catalog.filter(item => {
+                    const matchesQuery = !query || item.title.toLowerCase().includes(query);
+                    const matchesGenre = activeGenre === 'All' || item.genres.includes(activeGenre);
+                    return matchesQuery && matchesGenre;
+                });
+
+                if (query && activeGenre !== 'All') {
+                    resultsHeading.textContent = `"${searchInput.value.trim()}" in ${activeGenre}`;
+                } else if (query) {
+                    resultsHeading.textContent = `Results for "${searchInput.value.trim()}"`;
+                } else {
+                    resultsHeading.textContent = activeGenre;
+                }
+
+                renderResults(matches);
+            }
+
+            searchToggleBtn.addEventListener('click', () => {
+                const isExpanded = searchBarWrapper.classList.toggle('expanded');
+                if (isExpanded) {
+                    searchInput.focus();
+                }
+            });
+
+            searchInput.addEventListener('input', applyFilters);
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    applyFilters();
+                    searchInput.blur();
+                }
+            });
+
+            searchClearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                applyFilters();
+                searchInput.focus();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!searchBarWrapper.contains(e.target) && !searchInput.value.trim()) {
+                    searchBarWrapper.classList.remove('expanded');
+                }
+            });
+
+            buildGenreDropdown();
+        }
+
+        // Kick off the whole catalog + search/genre setup once the DOM is
+        // ready and auth.js has confirmed the signed-in account.
+        document.addEventListener('DOMContentLoaded', async () => {
+            await sfBootCatalog();
+            sfInitSearchAndGenre();
+        });
+
+        function playMovie() {
+            if (currentVideoFile) {
+                if (currentMovie) {
+                    localStorage.setItem('streamflix_now_playing', JSON.stringify(currentMovie));
+                }
+                window.location.href = `player.html?movie=${encodeURIComponent(currentVideoFile)}`;
+            } else {
+                alert("Sorry, video file is not available for this title yet!");
+            }
+        }
+
+        // ===============================
+        // TV SHOWS: SEASONS & EPISODES
+        // ===============================
+        const showsData = {
+            "It's Showtime": {
+                seasons: [{
+                    season: 1,
+                    episodes: [{
+                        title: "Grand Reopening Week",
+                        duration: "48m",
+                        desc: "The noontime hosts kick off a brand-new season with games and surprise cash prizes.",
+                        video: "Its Showtime S1E1"
+                    }, {
+                        title: "Hashtag Segment Special",
+                        duration: "45m",
+                        desc: "A viral online talent gets the spotlight as the hosts search for the next big internet sensation.",
+                        video: "Its Showtime S1E2"
+                    }]
+                }]
+            },
+            "Eat Bulaga": {
+                seasons: [{
+                    season: 1,
+                    episodes: [{
+                        title: "Sugod Bahay Surprise",
+                        duration: "50m",
+                        desc: "The hosts surprise a lucky family with a home visit and a chance to win big prizes.",
+                        video: "Eat Bulaga S1E1"
+                    }]
+                }]
+            },
+            "Reacher": {
+                seasons: [{
+                    season: 1,
+                    episodes: [{
+                        title: "Welcome to Margrave",
+                        duration: "51m",
+                        desc: "Jack Reacher steps off a bus in a small Georgia town and immediately becomes the prime suspect.",
+                        video: "Reacher S1E1"
+                    }]
+                }]
+            },
+            "Game of Thrones": {
+                seasons: [{
+                    season: 1,
+                    episodes: [{
+                        title: "Winter Is Coming",
+                        duration: "62m",
+                        desc: "Lord Eddard Stark is troubled by disturbing rumors as he is summoned to serve as the King's new Hand.",
+                        video: "GOT S1E1"
+                    }]
+                }]
+            },
+            "X-Men '97": {
+                seasons: [{
+                    season: 1,
+                    episodes: [{
+                        title: "To Me, My X-Men",
+                        duration: "24m",
+                        desc: "The X-Men grapple with Professor X's death as new threats emerge.",
+                        video: "XMen97 S1E1"
+                    }]
+                }]
+            },
+            "WWE: Unreal": {
+                seasons: [{
+                    season: 1,
+                    episodes: [{
+                        title: "Behind the Curtain",
+                        duration: "40m",
+                        desc: "An inside look at how a WrestleMania main event comes together, from pitch to script.",
+                        video: "WWEUnreal S1E1"
+                    }]
+                }]
+            }
+        };
+
+        const showModal = document.getElementById('showModal');
+        const showPoster = document.getElementById('showPoster');
+        const showTitleEl = document.getElementById('showTitle');
+        const showDescEl = document.getElementById('showDesc');
+        const seasonSelect = document.getElementById('seasonSelect');
+        const episodeListEl = document.getElementById('episodeList');
+        const showWatchlistBtn = document.getElementById('showWatchlistBtn');
+
+        let currentShow = null;
+
+        function renderEpisodes(seasonNumber) {
+            const seasonData = currentShow.seasons.find(s => s.season === seasonNumber);
+            episodeListEl.innerHTML = '';
+            if (!seasonData) return;
+
+            seasonData.episodes.forEach((ep, index) => {
+                const item = document.createElement('div');
+                item.className = 'episode-item';
+                item.innerHTML = `
+                    <img class="episode-thumb" src="${currentShow.poster}" alt="${ep.title}">
+                    <div class="episode-info">
+                        <div class="episode-number">S${seasonNumber} E${index + 1}</div>
+                        <div class="episode-title">${ep.title}</div>
+                        <div class="episode-duration">${ep.duration}</div>
+                        <div class="episode-desc">${ep.desc}</div>
+                    </div>
+                    <i class="fa-solid fa-circle-play episode-play-icon"></i>
+                `;
+                item.addEventListener('click', () => playEpisode(seasonNumber, index + 1, ep));
+                episodeListEl.appendChild(item);
+            });
+        }
+
+        function playEpisode(seasonNumber, episodeNumber, ep) {
+            const episodeMovie = {
+                title: `${currentShow.title} - S${seasonNumber}E${episodeNumber}: ${ep.title}`,
+                poster: currentShow.poster,
+                year: currentShow.year || '',
+                video: ep.video
+            };
+            localStorage.setItem('streamflix_now_playing', JSON.stringify(episodeMovie));
+            window.location.href = `player.html?movie=${encodeURIComponent(ep.video)}`;
+        }
+
+        function updateShowWatchlistBtn() {
+            if (!showWatchlistBtn || !currentShow) return;
+            if (isInWatchlist(currentShow.title)) {
+                showWatchlistBtn.innerHTML = '<i class="fa-solid fa-check"></i> In Watchlist';
+                showWatchlistBtn.classList.add('in-watchlist');
+            } else {
+                showWatchlistBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add to Watchlist';
+                showWatchlistBtn.classList.remove('in-watchlist');
+            }
+        }
+
+        function openShowModal(title, poster, desc, year) {
+            const data = showsData[title];
+            currentShow = {
+                title: title,
+                poster: poster,
+                desc: desc,
+                year: year,
+                seasons: data ? data.seasons : [{
+                    season: 1,
+                    episodes: [{
+                        title: title,
+                        duration: "N/A",
+                        desc: desc,
+                        video: title
+                    }]
+                }]
+            };
+
+            showPoster.src = poster;
+            showTitleEl.textContent = title;
+            showDescEl.textContent = desc;
+
+            document.getElementById('showModalStarsContainer').innerHTML = `
+                ${renderStarIcons(4.8)}
+                <span class="numeric-rating">4.8 / 5.0</span>
+            `;
+
+            seasonSelect.innerHTML = '';
+            currentShow.seasons.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.season;
+                opt.textContent = `Season ${s.season}`;
+                seasonSelect.appendChild(opt);
+            });
+
+            renderEpisodes(currentShow.seasons[0].season);
+            updateShowWatchlistBtn();
+            showModal.style.display = 'flex';
+        }
+
+        function closeShowModal() {
+            showModal.style.display = 'none';
+        }
+
+        seasonSelect.addEventListener('change', () => {
+            renderEpisodes(Number(seasonSelect.value));
+        });
+
+        if (showWatchlistBtn) {
+            showWatchlistBtn.addEventListener('click', () => {
+                if (!currentShow) return;
+                if (isInWatchlist(currentShow.title)) {
+                    removeFromWatchlistByTitle(currentShow.title);
+                } else {
+                    addToWatchlist({
+                        title: currentShow.title,
+                        poster: currentShow.poster,
+                        year: currentShow.year || '',
+                        type: 'show'
+                    });
+                }
+                updateShowWatchlistBtn();
+            });
+        }
+
+        window.addEventListener('click', (event) => {
+            if (event.target === showModal) {
+                closeShowModal();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const showParam = params.get('show');
+            if (!showParam) return;
+            const target = Array.from(document.querySelectorAll('.streamflix-movie[data-type="show"]'))
+                .find(el => el.getAttribute('data-title') === showParam);
+            if (target) target.click();
+        });
+    </script>
+</body>
+
+</html>
